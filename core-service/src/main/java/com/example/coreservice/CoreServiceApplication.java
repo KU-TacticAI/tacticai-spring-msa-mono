@@ -6,7 +6,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaAuditing
-@SpringBootApplication
+@SpringBootApplication(
+		scanBasePackages = {
+				"com.example.coreservice",
+				"com.example.commonmodule"
+		}
+)
 public class CoreServiceApplication {
 
 	public static void main(String[] args) {

@@ -29,6 +29,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation ("com.fasterxml.jackson.core:jackson-databind:2.17.0")
 	compileOnly("org.projectlombok:lombok:1.18.30")
 	annotationProcessor("org.projectlombok:lombok:1.18.30")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

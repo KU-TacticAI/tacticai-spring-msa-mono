@@ -1,6 +1,5 @@
 package com.example.coreservice.user.controller;
 
-import com.example.commonmodule.dto.PagingDto;
 import com.example.coreservice.user.dto.CreateUserRequestDto;
 import com.example.coreservice.user.dto.DeleteUserRequestDto;
 import com.example.coreservice.user.dto.UpdatePasswordRequestDto;
@@ -9,8 +8,6 @@ import com.example.coreservice.user.dto.UserResponseDto;
 import com.example.coreservice.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,7 +61,8 @@ public class UserController {
       @PathVariable Long id,
       @Valid @RequestBody UpdatePasswordRequestDto userUpdatePasswordRequestDto
   ){
-    return ResponseEntity.ok().body(userService.updateUserPassword(id, userUpdatePasswordRequestDto));
+    return ResponseEntity.ok().body(
+        userService.updateUserPassword(id, userUpdatePasswordRequestDto));
   }
 
   //회원 탈퇴
@@ -76,7 +72,6 @@ public class UserController {
       @Valid @RequestBody DeleteUserRequestDto deleteUserRequestDto
   ) {
     // 탈퇴 처리 메서드 호출
-    userService.deleteUsers(id, deleteUserRequestDto);
-    return "회원 탈퇴가 완료되었습니다.";
+    return userService.deleteUsers(id, deleteUserRequestDto);
   }
 }
