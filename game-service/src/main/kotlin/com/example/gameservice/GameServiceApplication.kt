@@ -2,8 +2,10 @@ package com.example.gameservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
-@SpringBootApplication
+@EnableJpaAuditing
+@SpringBootApplication(scanBasePackages = ["com.example"])
 class GameServiceApplication
 
 fun main(args: Array<String>) {
