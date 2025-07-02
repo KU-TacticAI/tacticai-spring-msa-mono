@@ -24,4 +24,3 @@ data class GameDetailLog(
     @Column(name = "move_id")
     val moveId: Long?
 )
-

@@ -1,6 +1,25 @@
 package com.example.gameservice.game_session.dto
 
+import com.example.gameservice.game_session.entity.GameDetailLog
+
 data class GameSessionResponseDto(
-    private val gameId:Long,
-    private val gameStatus:String,
-)
+    val id: Long,
+    val responseTimeMs: Int?,
+    val boardSnapshot: String?,
+    val aiId: Long?,
+    val gameSessionId: Long?,
+    val moveId: Long?
+) {
+    companion object {
+        fun from(entity: GameDetailLog): GameSessionResponseDto {
+            return GameSessionResponseDto(
+                id = entity.id,
+                responseTimeMs = entity.responseTimeMs,
+                boardSnapshot = entity.boardSnapshot,
+                aiId = entity.aiId,
+                gameSessionId = entity.gamesessionId,
+                moveId = entity.moveId
+            )
+        }
+    }
+}
