@@ -1,13 +1,12 @@
 package com.example.coreservice.user.entity;
 
 import com.example.commonmodule.base_entity.BaseDeletedAtEntity;
-import com.example.commonmodule.base_entity.BaseEntity;
+import com.example.coreservice.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +31,8 @@ public class Users extends BaseDeletedAtEntity {
   private String username;
 
   private String nickname;
+
+  private Role role = Role.USER;
 
   public void updateNickname(String newNickname) {
     this.nickname = newNickname;
