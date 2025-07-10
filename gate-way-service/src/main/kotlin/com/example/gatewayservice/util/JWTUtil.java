@@ -1,9 +1,6 @@
-package com.example.commonmodule.util;
+package com.example.gatewayservice.util;
 
-import com.example.commonmodule.common.TokenSettings;
-import com.example.commonmodule.exceptions.NoAuthorizedException;
-import com.example.commonmodule.exceptions.TokenErrorCode;
-import io.jsonwebtoken.ExpiredJwtException;
+
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -134,16 +131,16 @@ public class JWTUtil {
    * @param refreshToken 클라이언트가 제공한 Refresh Token
    */
   public void verifyRefreshTokenFormat(String refreshToken) {
-    try {
-      isExpired(refreshToken);
-      isIssuer(refreshToken);
-    } catch (ExpiredJwtException e) {
-      throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
-    }
-
-    if (!TokenSettings.REFRESH_TOKEN_CATEGORY.equals(getCategory(refreshToken))) {
-      throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
-    }
+//    try {
+//      isExpired(refreshToken);
+//      isIssuer(refreshToken);
+//    } catch (ExpiredJwtException e) {
+//      throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
+//    }
+//
+//    if (!TokenSettings.REFRESH_TOKEN_CATEGORY.equals(getCategory(refreshToken))) {
+//      throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
+//    }
   }
 
   /**

@@ -24,28 +24,26 @@ configurations {
 //}
 
 dependencies {
-	implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
+	implementation("org.springframework:spring-web")
+
+	implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.springframework.boot:spring-boot-starter-security")
+
+	implementation(platform("org.springframework.boot:spring-boot-dependencies:3.4.5"))
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation ("com.fasterxml.jackson.core:jackson-databind:2.17.0")
 	compileOnly("org.projectlombok:lombok:1.18.30")
 	annotationProcessor("org.projectlombok:lombok:1.18.30")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 	// jwt
 	implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
 	implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")
 	implementation ("io.jsonwebtoken:jjwt-jackson:0.12.3")
 
+	compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
+
 	// redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-	implementation ("org.redisson:redisson-spring-boot-starter:3.23.4")
-	implementation ("org.springframework.boot:spring-boot-starter-aop")
-	testImplementation ("org.testcontainers:testcontainers:1.19.4")
-	testImplementation ("org.testcontainers:junit-jupiter:1.19.4")
 }
 
 tasks.withType<Test> {

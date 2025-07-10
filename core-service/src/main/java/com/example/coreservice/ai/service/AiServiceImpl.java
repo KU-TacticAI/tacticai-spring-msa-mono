@@ -1,21 +1,21 @@
 package com.example.coreservice.ai.service;
 
-import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.coreservice.ai.dto.AiResponseDto;
 import com.example.coreservice.ai.dto.CreateAiRequestDto;
 import com.example.coreservice.ai.dto.DeleteAiRequestDto;
 import com.example.coreservice.ai.dto.UpdateAiRequestDto;
 import com.example.coreservice.ai.entity.AiAgent;
 import com.example.coreservice.ai.repository.AiRepository;
-import com.example.coreservice.exceptions.UserException;
 import com.example.coreservice.user.service.UserService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class AiServiceImpl implements AiService {
 
   private final AiRepository aiRepository;
