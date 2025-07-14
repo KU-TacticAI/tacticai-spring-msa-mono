@@ -1,5 +1,6 @@
 package com.example.gameservice.game_session.controller
 
+import com.example.commonmodule.dto.GameResultResponseDto
 import com.example.gameservice.game_session.dto.GameSessionResponseDto
 import com.example.gameservice.game_session.service.GameSessionService
 import org.springframework.http.ResponseEntity
@@ -32,7 +33,7 @@ class GameSessionController(
     @GetMapping("/result")
     fun getResult(
         @RequestParam("roomId") roomId : String,
-    ): ResponseEntity<GameSessionResponseDto> {
+    ): ResponseEntity<GameResultResponseDto> {
         return ResponseEntity.ok().body(gameSessionService.getResult(roomId))
     }
 }

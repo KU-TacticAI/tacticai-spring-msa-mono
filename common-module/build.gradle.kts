@@ -43,7 +43,11 @@ dependencies {
 	compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
 
 	// redis
-	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.redisson:redisson-spring-boot-starter:3.23.4")
+	implementation ("org.springframework.boot:spring-boot-starter-aop")
+	testImplementation ("org.testcontainers:testcontainers:1.19.4")
+	testImplementation ("org.testcontainers:junit-jupiter:1.19.4")
 }
 
 tasks.withType<Test> {

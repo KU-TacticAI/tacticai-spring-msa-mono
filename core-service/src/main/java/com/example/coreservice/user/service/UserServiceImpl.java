@@ -2,6 +2,7 @@ package com.example.coreservice.user.service;
 
 import com.example.commonmodule.exceptions.DuplicatedException;
 import com.example.commonmodule.exceptions.InvalidInputException;
+import com.example.coreservice.enums.Role;
 import com.example.coreservice.exceptions.UserException;
 import com.example.coreservice.user.dto.CreateUserRequestDto;
 import com.example.coreservice.user.dto.DeleteUserRequestDto;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService{
         .password(bCryptPasswordEncoder.encode(createUserDto.getPassword()))
         .username(createUserDto.getUsername())
         .nickname(createUserDto.getNickname())
+        .role(Role.USER)
         .build();
     userRepository.save(user);
     return UserResponseDto.toDto(user);

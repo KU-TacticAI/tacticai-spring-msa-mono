@@ -38,11 +38,19 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
 
 	// jwt
 	implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
 	implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")
 	implementation ("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
+	// 레디스
+	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.redisson:redisson-spring-boot-starter:3.23.4")
+	implementation ("org.springframework.boot:spring-boot-starter-aop")
+	testImplementation ("org.testcontainers:testcontainers:1.19.4")
+	testImplementation ("org.testcontainers:junit-jupiter:1.19.4")
 }
 
 tasks.withType<Test> {

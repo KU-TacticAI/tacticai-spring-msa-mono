@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -22,7 +23,8 @@ public class JWTUtil {
   private final RedisTemplate<String, String> redisTemplate;
   private SecretKey secretKey;
 
-  public JWTUtil(RedisTemplate<String, String> redisTemplate, @Value("${spring.jwt.secret}") String secret) {
+  public JWTUtil(@Qualifier("redisTemplate")RedisTemplate<String, String> redisTemplate,
+      @Value("${spring.jwt.secret}") String secret) {
     this.redisTemplate = redisTemplate;
     this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
         Jwts.SIG.HS256.key().build().getAlgorithm());
@@ -81,7 +83,7 @@ public class JWTUtil {
     String access = createJwt(TokenSettings.ACCESS_TOKEN_CATEGORY, userId, role, TokenSettings.ACCESS_TOKEN_EXPIRATION);
     String refresh = createJwt(TokenSettings.REFRESH_TOKEN_CATEGORY, TokenSettings.REFRESH_TOKEN_CATEGORY + userId, role, TokenSettings.REFRESH_TOKEN_EXPIRATION);
 
-    storeRefreshToken(TokenSettings.REFRESH_TOKEN_CATEGORY + userId, refresh);
+//    storeRefreshToken(TokenSettings.REFRESH_TOKEN_CATEGORY + userId, refresh);
 
     return new String[]{access, refresh};
   }

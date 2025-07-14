@@ -1,24 +1,16 @@
-package com.example.gatewayservice.util;
+package com.example.gatewayservice.util
 
-import lombok.Getter;
+object TokenSettings {
+    const val ACCESS_TOKEN_CATEGORY: String = "ACCESS" // 액세스 토큰 구분 값
+    const val REFRESH_TOKEN_CATEGORY: String = "REFRESH" // 리프레시 토큰 구분 값
 
-@Getter
-public final class TokenSettings {
+    const val ACCESS_TOKEN_EXPIRATION: Long = 1000 * 60 * 30 // 액세스 토큰 유효시간 (30분)
+    const val REFRESH_TOKEN_EXPIRATION: Long = 1000 * 60 * 60 * 24 * 7 // 리프레시 토큰 유효시간 (7일)
 
-  private TokenSettings(){
-  }
+    // 토큰 공통 속성
+    const val TOKEN_ISSUER: String = "taticalAi" // 토큰 발급자
+    const val TOKEN_TYPE: String = "Bearer " // 토큰 타입
 
-  // 토큰 만료 시간 (밀리초 단위)
-//  public static final long ACCESS_TOKEN_EXPIRATION = 10 * 60 * 10000000000000L; // 10분
-  public static final long ACCESS_TOKEN_EXPIRATION = 10 * 60 * 1000L; // 10분
-  public static final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
-
-  // 토큰 공통 속성
-  public static final String TOKEN_ISSUER = "taticalAi"; // 토큰 발급자
-  public static final String TOKEN_TYPE = "Bearer "; // 토큰 타입
-  public static final String ACCESS_TOKEN_CATEGORY = "Authorization"; // 액세스 토큰 카테고리
-  public static final String REFRESH_TOKEN_CATEGORY = "refresh"; // 리프레시 토큰 카테고리
-
-  // 쿠키 만료 시간
-  public static final int COOKIE_EXPIRATION = 24 * 60 * 60;
+    // 쿠키 만료 시간
+    const val COOKIE_EXPIRATION: Int = 24 * 60 * 60
 }

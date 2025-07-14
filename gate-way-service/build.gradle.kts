@@ -37,11 +37,16 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
 
     // jwt
     implementation ("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation ("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation ("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     // gateway
     implementation("org.springframework.boot:spring-boot-starter-webflux")

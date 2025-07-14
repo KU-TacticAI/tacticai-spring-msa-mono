@@ -1,6 +1,7 @@
 package com.example.coreservice.user.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +42,17 @@ class UserServiceImplUnitTest {
         .username("testUsername")
         .nickname("testNickname")
         .build();
+
+    Users savedUser = Users.builder()
+        .id(1L)
+        .email("test@test.com")
+        .username("testUsername")
+        .nickname("testNickname")
+        .build();
+
+    when(bCryptPasswordEncoder.encode(any())).thenReturn("encodedPassword");
+    when(userRepository.save(any())).thenReturn(savedUser);
+
     // When
     UserResponseDto userResponseDto = userServiceImpl.createUser(testUserDto);
     // Then
@@ -59,6 +70,7 @@ class UserServiceImplUnitTest {
         .username("username")
         .nickname("nickname")
         .build();
+
     when(userRepository.findByIdOrElseThrow(any())).thenReturn(mockUser);
     // When
     UserResponseDto userResponseDto = userServiceImpl.findUsers(1L);
