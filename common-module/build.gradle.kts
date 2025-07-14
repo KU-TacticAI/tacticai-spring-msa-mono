@@ -57,3 +57,7 @@ tasks.withType<Test> {
 tasks.getByName<Jar>("jar") {
 	enabled = true
 }
+
+tasks.withType<JavaCompile> {
+	options.compilerArgs.add("-parameters")
+}

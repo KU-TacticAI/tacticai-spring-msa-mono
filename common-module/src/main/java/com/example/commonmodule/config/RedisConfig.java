@@ -28,7 +28,7 @@ public class RedisConfig {
     return new LettuceConnectionFactory(configuration);
   }
 
-  @Bean
+  @Bean(name = "redisTemplate")
   public RedisTemplate<String, String> redisTemplate() {
     RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
     redisTemplate.setConnectionFactory(redisConnectionFactory());
