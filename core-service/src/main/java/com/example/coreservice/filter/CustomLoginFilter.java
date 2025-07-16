@@ -1,6 +1,7 @@
 package com.example.coreservice.filter;
 
 
+import com.example.commonmodule.common.TokenSettings;
 import com.example.commonmodule.util.JWTUtil;
 import com.example.coreservice.user.entity.CustomUserDetails;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -84,7 +85,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     Map<String, String> body = new HashMap<>();
     body.put("token", accessToken);
     // refresh token 쿠키 설정
-//    response.addCookie(jwtUtil.createCookie(TokenSettings.REFRESH_TOKEN_CATEGORY, refreshToken));
+    response.addCookie(jwtUtil.createCookie(TokenSettings.REFRESH_TOKEN_CATEGORY, refreshToken));
 
     response.setStatus(HttpServletResponse.SC_OK); // 302 Found 설정
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);

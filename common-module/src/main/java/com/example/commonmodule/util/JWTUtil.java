@@ -5,6 +5,7 @@ import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.TokenErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Date;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -83,7 +83,7 @@ public class JWTUtil {
     String access = createJwt(TokenSettings.ACCESS_TOKEN_CATEGORY, userId, role, TokenSettings.ACCESS_TOKEN_EXPIRATION);
     String refresh = createJwt(TokenSettings.REFRESH_TOKEN_CATEGORY, TokenSettings.REFRESH_TOKEN_CATEGORY + userId, role, TokenSettings.REFRESH_TOKEN_EXPIRATION);
 
-//    storeRefreshToken(TokenSettings.REFRESH_TOKEN_CATEGORY + userId, refresh);
+    storeRefreshToken(TokenSettings.REFRESH_TOKEN_CATEGORY + userId + role, refresh);
 
     return new String[]{access, refresh};
   }
@@ -170,21 +170,14 @@ public class JWTUtil {
   }
 
   // 쿠키에 리플레시 토큰을 담기위해 쿠키를 생성하는 로직
-//  public Cookie createCookie(String key, String value) {
-//    Cookie cookie = new Cookie(key, value);
-//    // 쿠키 1일 유지
-//    cookie.setMaxAge(TokenSettings.COOKIE_EXPIRATION);
-//    //cookie.setSecure(true);
-//    cookie.setPath("/");
-//    cookie.setHttpOnly(true);
-//
-//    return cookie;
-//  }
-  public ResponseCookie createCookie(String key, String value) {
-    return ResponseCookie.from(key, value)
-        .httpOnly(true)
-        .path("/")
-        .maxAge(Duration.ofDays(1))
-        .build();
+  public Cookie createCookie(String key, String value) {
+    Cookie cookie = new Cookie(key, value);
+    // 쿠키 1일 유지
+    cookie.setMaxAge(TokenSettings.COOKIE_EXPIRATION);
+    //cookie.setSecure(true);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+
+    return cookie;
   }
 }
