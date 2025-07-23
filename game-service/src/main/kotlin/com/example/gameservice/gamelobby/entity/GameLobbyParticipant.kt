@@ -8,17 +8,20 @@ import java.time.LocalDateTime
 data class GameLobbyParticipant(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    var id: Long = 0,
 
     @Column(name = "join_order")
-    val joinOrder: Int?,
+    val joinOrder: Int,
 
     @Column(name = "joined_at")
-    val joinedAt: LocalDateTime?,
+    val joinedAt: LocalDateTime,
 
-    @Column(name = "ai_id")
-    val aiId: Long?,
+    @Column(name = "user_id")
+    val userId: Long,
 
     @Column(name = "room_id")
-    val roomId: Long?
+    val roomId: Long,
+
+    @Column(name = "selected_ai_id")
+    var selectedAiId: Long? = null
 )

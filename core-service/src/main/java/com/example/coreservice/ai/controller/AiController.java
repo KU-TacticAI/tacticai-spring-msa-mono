@@ -5,9 +5,8 @@ import com.example.coreservice.ai.dto.CreateAiRequestDto;
 import com.example.coreservice.ai.dto.DeleteAiRequestDto;
 import com.example.coreservice.ai.dto.UpdateAiRequestDto;
 import com.example.coreservice.ai.service.AiService;
-import com.example.coreservice.ai.service.AiServiceImpl;
-import lombok.RequiredArgsConstructor;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -31,6 +32,14 @@ public class AiController {
       @RequestBody CreateAiRequestDto requestDto
   ) {
     return ResponseEntity.ok().body(aiService.createAI(userId, requestDto));
+  }
+
+  @PostMapping("/{aiId}/files")
+  public ResponseEntity<AiResponseDto> createAIFile(
+      @PathVariable Long aiId,
+      @RequestPart MultipartFile file
+  ){
+    return ResponseEntity.ok().body(aiService.uploadAiFile(aiId, file));
   }
 
   @GetMapping("/{id}/user/{userId}")

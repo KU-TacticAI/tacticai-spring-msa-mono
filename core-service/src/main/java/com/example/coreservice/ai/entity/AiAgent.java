@@ -1,8 +1,8 @@
 package com.example.coreservice.ai.entity;
 
 import com.example.commonmodule.base_entity.BaseDeletedAtEntity;
-import com.example.commonmodule.base_entity.BaseEntity;
 import com.example.commonmodule.enums.AiStatus;
+import com.example.coreservice.enums.Tier;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,8 +33,15 @@ public class AiAgent extends BaseDeletedAtEntity {
 
   private String description;
 
+  private Long score;
+
+  @Enumerated(EnumType.STRING)
+  private Tier tier;
+
   @Enumerated(EnumType.STRING)
   private AiStatus status;
+
+  private String aiUrl = null;
 
   public void updateName(String name){
     this.name = name;
@@ -46,6 +53,10 @@ public class AiAgent extends BaseDeletedAtEntity {
 
   public void updateDescription(String description){
     this.description = description;
+  }
+
+  public void uploadAiUrl(String aiUrl){
+    this.aiUrl = aiUrl;
   }
 
 }

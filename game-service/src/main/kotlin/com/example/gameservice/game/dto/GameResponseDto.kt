@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 data class GameResponseDto (
-    private val gameType: String?,
-    private val version: String?,
-    private val description: String?,
+    val gameType: String?,
+    val version: String?,
+    val description: String?,
 ){
     companion object{
         fun from(game : Game): GameResponseDto =

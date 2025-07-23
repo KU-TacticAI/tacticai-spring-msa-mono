@@ -1,10 +1,10 @@
 package com.example.gatewayservice.util
 
 object TokenSettings {
-    const val ACCESS_TOKEN_CATEGORY: String = "ACCESS" // 액세스 토큰 구분 값
-    const val REFRESH_TOKEN_CATEGORY: String = "REFRESH" // 리프레시 토큰 구분 값
+    const val ACCESS_TOKEN_CATEGORY: String = "Authorization" // 액세스 토큰 구분 값
+    const val REFRESH_TOKEN_CATEGORY: String = "refresh" // 리프레시 토큰 구분 값
 
-    const val ACCESS_TOKEN_EXPIRATION: Long = 1000 * 60 * 30 // 액세스 토큰 유효시간 (30분)
+    const val ACCESS_TOKEN_EXPIRATION: Long = 1000 * 60 * 30 *1234546789 // 액세스 토큰 유효시간 (30분)
     const val REFRESH_TOKEN_EXPIRATION: Long = 1000 * 60 * 60 * 24 * 7 // 리프레시 토큰 유효시간 (7일)
 
     // 토큰 공통 속성

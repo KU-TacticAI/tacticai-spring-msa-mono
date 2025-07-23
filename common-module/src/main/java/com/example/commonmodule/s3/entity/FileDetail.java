@@ -1,21 +1,18 @@
-package com.example.commonmodule.entity;
+package com.example.commonmodule.s3.entity;
 
-import com.example.commonmodule.base_entity.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
-@AllArgsConstructor
-@Builder
+@Entity
 @NoArgsConstructor
-public class FileDetail extends BaseEntity {
+@AllArgsConstructor
+public class FileDetail {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +29,14 @@ public class FileDetail extends BaseEntity {
   private String originFileName;
 
   private String serverFileName;
+
+  public FileDetail(String bucket, String originFileName, String serverFileName, String filePath, Long fileSize, String fileType) {
+    this.bucket = bucket;
+    this.originFileName = originFileName;
+    this.serverFileName = serverFileName;
+    this.filePath = filePath;
+    this.fileSize = fileSize;
+    this.fileType = fileType;
+  }
+
 }

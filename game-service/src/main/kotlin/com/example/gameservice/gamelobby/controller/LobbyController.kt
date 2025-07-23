@@ -1,6 +1,8 @@
 package com.example.gameservice.gamelobby.controller
 
+import com.example.commonmodule.util.JWTUtil
 import com.example.gameservice.gamelobby.dto.CreateRoomRequestDto
+import com.example.gameservice.gamelobby.dto.ResponseLobbyDto
 import com.example.gameservice.gamelobby.dto.RoomResponseDto
 import com.example.gameservice.gamelobby.service.LobbyService
 import org.jetbrains.annotations.NotNull
@@ -10,15 +12,18 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/rooms")
 class LobbyController(
-    private val lobbyService: LobbyService
+    private val lobbyService: LobbyService,
+    private val jwtUtil: JWTUtil
 ) {
 
     // 대기방 생성
     @PostMapping
     fun createRoom(
+        @RequestHeader("Authorization") token: String,
         @RequestBody requestData: CreateRoomRequestDto
     ): ResponseEntity<RoomResponseDto> {
-        return ResponseEntity.ok().body(lobbyService.createRoom(requestData))
+        val userId = jwtUtil.getUserId(token)
+        return ResponseEntity.ok().body(lobbyService.createRoom(userId, requestData))
     }
 
     // 대기방 다건 조회
@@ -31,8 +36,10 @@ class LobbyController(
     @PostMapping("/{roomId}")
     fun enterRoom(
         @NotNull @PathVariable roomId: Long,
+        @RequestHeader("Authorization") token: String
     ): ResponseEntity<String> {
-        return ResponseEntity.ok().body(lobbyService.enterRoom(roomId))
+        val userId = jwtUtil.getUserId(token).toLong()
+        return ResponseEntity.ok().body(lobbyService.enterRoom(roomId, userId))
     }
 
     // 대기방 단건 조회
@@ -44,10 +51,12 @@ class LobbyController(
     // AI 모델 선택
     @PostMapping("/{roomId}/ai/{aiId}")
     fun selectAi(
+        @RequestHeader("Authorization") token: String,
         @PathVariable roomId: Long,
         @PathVariable aiId: Long,
-    ): ResponseEntity<RoomResponseDto> {
-        return ResponseEntity.ok().body(lobbyService.selectAi(roomId, aiId))
+    ): ResponseEntity<ResponseLobbyDto> {
+        val userId = jwtUtil.getUserId(token).toLong()
+        return ResponseEntity.ok().body(lobbyService.selectAi(roomId, userId, aiId))
     }
 
     // 게임 시작 요청
@@ -56,13 +65,5 @@ class LobbyController(
         @PathVariable roomId: Long,
     ): ResponseEntity<RoomResponseDto> {
         return ResponseEntity.ok().body(lobbyService.startRoom(roomId))
-    }
-
-    // 게임 서버로 AI + 게임 전송
-    @PostMapping("/{roomId}/start/game-info")
-    fun startGameInfo(
-        @PathVariable roomId: Long,
-    ): ResponseEntity<RoomResponseDto> {
-        return ResponseEntity.ok().body(lobbyService.startGameInfo(roomId))
     }
 }

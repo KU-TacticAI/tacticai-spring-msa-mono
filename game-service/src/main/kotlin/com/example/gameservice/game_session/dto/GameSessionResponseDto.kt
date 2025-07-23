@@ -17,7 +17,7 @@ data class GameSessionResponseDto(
                 responseTimeMs = entity.responseTimeMs,
                 boardSnapshot = entity.boardSnapshot,
                 aiId = entity.aiId,
-                gameSessionId = entity.gamesessionId,
+                gameSessionId = entity.gameSessionId,
                 moveId = entity.moveId
             )
         }

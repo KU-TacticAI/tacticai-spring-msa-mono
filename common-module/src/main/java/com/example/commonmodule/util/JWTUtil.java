@@ -44,8 +44,12 @@ public class JWTUtil {
 
   // 토큰에서 유저 아이디를 가져오는 메소드 ( String 타입 )
   public String getUserId(String token) {
-    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+    return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(trimJWT(token)).getPayload()
         .get("userId", String.class);
+  }
+
+  private String trimJWT(String token) {
+    return token.replace(TokenSettings.TOKEN_TYPE, "").trim();
   }
 
   // Access 토큰 / Refresh 토큰 구분

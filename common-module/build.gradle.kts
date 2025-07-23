@@ -48,6 +48,11 @@ dependencies {
 	implementation ("org.springframework.boot:spring-boot-starter-aop")
 	testImplementation ("org.testcontainers:testcontainers:1.19.4")
 	testImplementation ("org.testcontainers:junit-jupiter:1.19.4")
+
+	// S3 연동d
+	implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+	implementation ("com.amazonaws:aws-java-sdk-s3:1.12.529")
+	testImplementation ("cloud.localstack:localstack-utils:0.2.20")
 }
 
 tasks.withType<Test> {

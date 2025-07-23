@@ -4,8 +4,10 @@ import com.example.coreservice.ai.dto.AiResponseDto;
 import com.example.coreservice.ai.dto.CreateAiRequestDto;
 import com.example.coreservice.ai.dto.DeleteAiRequestDto;
 import com.example.coreservice.ai.dto.UpdateAiRequestDto;
+import com.example.coreservice.ai.entity.AiAgent;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface AiService {
@@ -19,4 +21,8 @@ public interface AiService {
   AiResponseDto updateAi(Long id, Long userId, UpdateAiRequestDto requestDto);
 
   String deleteAIAgent(Long id, Long userId, DeleteAiRequestDto requestDto);
+
+  List<AiAgent> findByUserIdIn(List<Long> userIdList);
+
+  AiResponseDto uploadAiFile(Long aiId, MultipartFile file);
 }

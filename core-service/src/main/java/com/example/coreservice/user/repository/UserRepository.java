@@ -5,6 +5,7 @@ import com.example.commonmodule.exceptions.NotFoundException;
 import com.example.coreservice.exceptions.UserException;
 import com.example.coreservice.user.entity.Users;
 import java.util.Optional;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -29,4 +30,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
   }
 
   boolean existsByEmail(String email);
+
+  List<Users> findByIdIn(List<Long> userIds);
 }

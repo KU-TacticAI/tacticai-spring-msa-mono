@@ -1,11 +1,9 @@
 package com.example.coreservice.ai.repository;
 
-import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.commonmodule.exceptions.NotFoundException;
 import com.example.coreservice.ai.dto.AiResponseDto;
 import com.example.coreservice.ai.entity.AiAgent;
 import com.example.coreservice.exceptions.AiException;
-import com.example.coreservice.user.entity.Users;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -21,11 +19,14 @@ public interface AiRepository extends JpaRepository<AiAgent, Long> {
     return aiAgent;
   }
 
-  List<AiAgent> findByUserId(Long userId);
+  List<AiAgent> findByUserIdAndDeletedAtIsNull(Long userId);
 
   default List<AiResponseDto> findByUserIdOrElseThrow(Long userId){
-    List<AiAgent> aiList = findByUserId(userId);
+    List<AiAgent> aiList = findByUserIdAndDeletedAtIsNull(userId);
     return aiList.stream().map(AiResponseDto::toDto).toList();
   }
 
+  List<AiAgent> findByUserIdIn(List<Long> userIdList);
+
+  List<AiAgent> findByIdIn(List<Long> ids);
 }

@@ -13,5 +13,11 @@ public class GameResultResponseDto {
 
   private Long roomId;
   private PlayerResultDto winner;
-  private PlayerResultDto loser;
+
+  public static GameResultResponseDto toDto(Long roomId, PlayerResultDto winner) {
+    return GameResultResponseDto.builder()
+        .roomId(roomId)
+        .winner(winner)
+        .build();
+  }
 }

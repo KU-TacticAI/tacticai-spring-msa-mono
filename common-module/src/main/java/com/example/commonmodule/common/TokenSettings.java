@@ -10,7 +10,7 @@ public final class TokenSettings {
 
   // 토큰 만료 시간 (밀리초 단위)
 //  public static final long ACCESS_TOKEN_EXPIRATION = 10 * 60 * 10000000000000L; // 10분
-  public static final long ACCESS_TOKEN_EXPIRATION = 10 * 60 * 1000L; // 10분
+  public static final long ACCESS_TOKEN_EXPIRATION = 10 * 60 * 1000L * 1234567890; // 10분
   public static final long REFRESH_TOKEN_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
 
   // 토큰 공통 속성

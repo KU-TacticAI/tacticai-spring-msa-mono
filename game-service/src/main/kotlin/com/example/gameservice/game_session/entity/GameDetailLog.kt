@@ -19,7 +19,7 @@ data class GameDetailLog(
     val aiId: Long?,
 
     @Column(name = "gamesession_id")
-    val gamesessionId: Long?,
+    val gameSessionId: Long?,
 
     @Column(name = "move_id")
     val moveId: Long?

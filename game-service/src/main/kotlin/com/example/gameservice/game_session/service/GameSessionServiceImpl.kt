@@ -1,10 +1,14 @@
 package com.example.gameservice.game_session.service
 
 import com.example.commonmodule.dto.GameResultResponseDto
+import com.example.commonmodule.dto.PlayerResultDto
+import com.example.gameservice.client.CoreClient
 import com.example.gameservice.game_session.dto.GameProgressDto
 import com.example.gameservice.game_session.dto.GameRequestDto
 import com.example.gameservice.game_session.dto.GameSessionResponseDto
+import com.example.gameservice.game_session.entity.GameResult
 import com.example.gameservice.game_session.repository.GameDetailLogRepository
+import com.example.gameservice.game_session.repository.GameResultRepository
 import com.example.gameservice.game_session.repository.GameSessionRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -17,6 +21,8 @@ class GameSessionServiceImpl(
     private val webClient: WebClient,
     @Value("\${fastapi.base-url}")
     private val fastapiBaseUrl: String,
+    private val gameResultRepository: GameResultRepository,
+    private val coreClient: CoreClient,
 ) : GameSessionService {
 
     /**
@@ -44,11 +50,18 @@ class GameSessionServiceImpl(
             .block()
     }
 
+    override fun showResult(roomId: String): GameResultResponseDto? {
+        val gameResult: GameResult = gameResultRepository.findByRoomId(roomId.toLong())
+        val winnerUser: PlayerResultDto = coreClient.getUserById(gameResult.winnerId!!)
+
+        return GameResultResponseDto.toDto(gameResult.roomId, winnerUser)
+    }
+
     /**
      * FastAPI 서버로부터 게임 결과 정보를 가져옵니다.
      * GET /api/result/{roomId}
      */
-    override fun getResult(roomId: String): GameResultResponseDto? {
+    fun getResult(roomId: String): GameResultResponseDto? {
         return webClient.get()
             .uri("$fastapiBaseUrl/api/result/{roomId}", roomId)
             .retrieve()

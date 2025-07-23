@@ -32,8 +32,8 @@ class GameSessionController(
     // 게임 결과 조회
     @GetMapping("/result")
     fun getResult(
-        @RequestParam("roomId") roomId : String,
+        @PathVariable("roomId") roomId: Long,
     ): ResponseEntity<GameResultResponseDto> {
-        return ResponseEntity.ok().body(gameSessionService.getResult(roomId))
+        return ResponseEntity.ok().body(gameSessionService.showResult(roomId.toString()))
     }
 }

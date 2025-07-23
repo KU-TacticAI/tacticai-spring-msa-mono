@@ -1,5 +1,6 @@
 package com.example.coreservice.user.service;
 
+import com.example.commonmodule.dto.PlayerResultDto;
 import com.example.commonmodule.exceptions.DuplicatedException;
 import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.coreservice.enums.Role;
@@ -11,6 +12,7 @@ import com.example.coreservice.user.dto.UpdateUserRequestDto;
 import com.example.coreservice.user.dto.UserResponseDto;
 import com.example.coreservice.user.entity.Users;
 import com.example.coreservice.user.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -81,5 +83,19 @@ public class UserServiceImpl implements UserService{
       throw new InvalidInputException(UserException.WRONG_PASSWORD);
     }
     return user;
+  }
+
+  @Override
+  public List<Users> findUsers(List<Long> userIdList) {
+    return userRepository.findByIdIn(userIdList);
+  }
+
+  @Override
+  public PlayerResultDto findWinner(Long userId) {
+    Users user = userRepository.findByIdOrElseThrow(userId);
+    return PlayerResultDto.builder()
+        .userId(user.getId())
+        .nickname(user.getNickname())
+        .build();
   }
 }

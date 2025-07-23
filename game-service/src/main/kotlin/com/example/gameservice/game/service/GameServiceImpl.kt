@@ -13,17 +13,18 @@ class GameServiceImpl(
 ) : GameService {
 
     override fun createGame(requestDto: CreateGameRequestDto): GameResponseDto? {
-        return gameRepository.createGame(
-            Game.of(
-                requestDto.getGameType(),
-                requestDto.getGameVersion(),
-                requestDto.getDescription()
-            )
+        val game = Game.of(
+            requestDto.getGameType(),
+            requestDto.getGameVersion(),
+            requestDto.getDescription()
         )
+        val savedGame : Game = gameRepository.save(game)
+        return GameResponseDto.from(savedGame)
     }
 
     override fun getGames(): List<GameResponseDto>? {
-        return gameRepository.findAllGames();
+        val gameList : List<Game> = gameRepository.findAllByDeletedAtIsNull();
+        return gameList.map { g -> GameResponseDto.from(g) }
     }
 
     override fun getGameById(id: Long): GameResponseDto? {

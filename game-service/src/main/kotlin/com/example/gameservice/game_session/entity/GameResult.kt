@@ -11,11 +11,13 @@ data class GameResult(
     @Column(name = "id")
     val id: Long,
 
+    val roomId: Long,
+
     @Column(name = "createdat")
     val createdAt: LocalDateTime?,
 
-    @Column(name = "winneraiid")
-    val winnerAiId: Long?,
+    @Column(name = "winner_id")
+    val winnerId: Long?,
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "gamesession_id")
