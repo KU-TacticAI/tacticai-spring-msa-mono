@@ -14,9 +14,7 @@ import com.example.gameservice.gamelobby.repository.GameRoomRepository
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
 
 @Service
 class LobbyServiceImpl(
@@ -97,13 +95,11 @@ class LobbyServiceImpl(
         }
 
         val body = mapOf(
-            "request_id" to UUID.randomUUID().toString(),
-            "timestamp" to Instant.now().toString(),
-            "game_id" to room.getId(),
+            "game_id" to room.getId().toString(),
             "game_type" to room.getGameType(),
-            "model_ids" to selectedAiIds,
-            "model_urls" to modelUrls,
-            "players" to userIdList
+            "ai_model_ids" to selectedAiIds.map { it.toString() },
+            "ai_model_urls" to modelUrls,
+            "player_names" to userIdList.map { it.toString() }
         )
 
         webClient.post()

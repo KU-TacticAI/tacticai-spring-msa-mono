@@ -19,7 +19,7 @@ public class RankingScheduler {
   @Scheduled(cron = "0 0 0 * * *") // 초 분 시 일 월 요일
   public void updateRankingBatch() {
     log.info("🏁 랭킹 재계산 시작");
-    rankingService.recalculateAllUserRanking(); // 이 메서드는 직접 구현해야 함
+    rankingService.recalculateAllUserRanking();
     log.info("✅ 랭킹 재계산 완료");
   }
 }
