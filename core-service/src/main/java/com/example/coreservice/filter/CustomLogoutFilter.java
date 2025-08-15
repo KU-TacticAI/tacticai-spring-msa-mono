@@ -135,13 +135,14 @@ public class CustomLogoutFilter extends GenericFilterBean {
    */
   private void performLogout(String refreshToken, HttpServletResponse response) {
     String userId = jwtUtil.getUserId(refreshToken);
-
-    if (!jwtUtil.checkRefreshTokenMatch(userId, refreshToken)) {
+    String auth = jwtUtil.findAuthByToken(refreshToken);
+    String redisKey = userId + auth;
+    if (!jwtUtil.checkRefreshTokenMatch(redisKey, refreshToken)) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       return;
     }
 
-    jwtUtil.deleteRefreshTokenFromRedis(userId);
+    jwtUtil.deleteRefreshTokenFromRedis(redisKey);
 
     clearCookies(response);
     response.setStatus(HttpServletResponse.SC_OK);

@@ -27,7 +27,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -94,14 +93,14 @@ public class SecurityConfig {
       UserRepository userRepository) throws Exception {
 //    OAuth2Service oAuth2Service = applicationContext.getBean(OAuth2Service.class);
 
-    http.cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
-      CorsConfiguration config = new CorsConfiguration();
-      config.addAllowedOrigin(frontUrl);
-      config.addAllowedMethod("*");
-      config.addAllowedHeader("*");
-      config.setAllowCredentials(true);
-      return config;
-    }));
+//    http.cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
+//      CorsConfiguration config = new CorsConfiguration();
+//      config.addAllowedOrigin(frontUrl);
+//      config.addAllowedMethod("*");
+//      config.addAllowedHeader("*");
+//      config.setAllowCredentials(true);
+//      return config;
+//    }));
 
     // csrf disable
     http.csrf(AbstractHttpConfigurer::disable);
@@ -122,11 +121,12 @@ public class SecurityConfig {
     http.authorizeHttpRequests((auth) -> auth
         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
         // 전체 허용 API
-        .requestMatchers(WHITE_LIST).permitAll()
+//        .requestMatchers(WHITE_LIST).permitAll()
         // ADMIN 전용 API
-        .requestMatchers(ADMIN_LIST).hasAuthority(Role.ADMIN.name())
+//        .requestMatchers(ADMIN_LIST).hasAuthority(Role.ADMIN.name())
         // 기타 요청은 인증 필요
-        .anyRequest().authenticated()
+//        .anyRequest().authenticated()
+        .anyRequest().permitAll()
     );
 
     http.addFilterBefore(new CustomLogoutFilter(jwtUtil), LogoutFilter.class);
