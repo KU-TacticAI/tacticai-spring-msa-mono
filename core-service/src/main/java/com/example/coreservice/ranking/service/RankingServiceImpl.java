@@ -1,7 +1,6 @@
 package com.example.coreservice.ranking.service;
 
 import com.example.coreservice.ai.entity.AiAgent;
-import com.example.coreservice.ai.repository.UserAiRepository;
 import com.example.coreservice.ai.service.AiService;
 import com.example.coreservice.ranking.dto.RankingResponseDto;
 import com.example.coreservice.ranking.entity.Ranking;
@@ -26,7 +25,7 @@ public class RankingServiceImpl implements RankingService {
   private final UserService userService;
   private final AiService aiService;
   private final RankingRepository rankingRepository;
-  private final UserAiRepository userAiRepository;
+//  private final UserAiRepository userAiRepository;
 
   @Override
   public List<RankingResponseDto> getRankings(Long totalScore, Pageable pageable) {

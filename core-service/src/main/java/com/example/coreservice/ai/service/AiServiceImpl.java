@@ -8,10 +8,10 @@ import com.example.coreservice.ai.dto.DeleteAiRequestDto;
 import com.example.coreservice.ai.dto.UpdateAiRequestDto;
 import com.example.coreservice.ai.entity.AiAgent;
 import com.example.coreservice.ai.entity.AiFile;
-import com.example.coreservice.ai.entity.UserAi;
+//import com.example.coreservice.ai.entity.UserAi;
 import com.example.coreservice.ai.repository.AiFileRepository;
 import com.example.coreservice.ai.repository.AiRepository;
-import com.example.coreservice.ai.repository.UserAiRepository;
+//import com.example.coreservice.ai.repository.UserAiRepository;
 import com.example.coreservice.user.service.UserService;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -27,7 +27,7 @@ public class AiServiceImpl implements AiService {
 
   private final AiRepository aiRepository;
   private final UserService userService;
-  private final UserAiRepository userAiRepository;
+//  private final UserAiRepository userAiRepository;
   private final S3Service s3Service;
   private final AiFileRepository aiFileRepository;
 
@@ -41,11 +41,11 @@ public class AiServiceImpl implements AiService {
         .build();
     AiAgent savedAi = aiRepository.save(aiAgent);
 
-    UserAi userAi = UserAi.builder()
-        .userId(userId)
-        .aiId(savedAi.getId())
-        .build();
-    userAiRepository.save(userAi);
+//    UserAi userAi = UserAi.builder()
+//        .userId(userId)
+//        .aiId(savedAi.getId())
+//        .build();
+//    userAiRepository.save(userAi);
 
     return AiResponseDto.toDto(aiAgent);
   }
