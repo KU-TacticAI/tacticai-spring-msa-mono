@@ -3,6 +3,7 @@ package com.example.coreservice.user.service;
 import com.example.commonmodule.dto.PlayerResultDto;
 import com.example.commonmodule.exceptions.DuplicatedException;
 import com.example.commonmodule.exceptions.InvalidInputException;
+import com.example.commonmodule.s3.service.S3Service;
 import com.example.coreservice.enums.Role;
 import com.example.coreservice.exceptions.UserException;
 import com.example.coreservice.user.dto.CreateUserRequestDto;
@@ -26,19 +27,28 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserServiceImpl implements UserService{
 
   private final UserRepository userRepository;
+  private final S3Service s3Service;
   private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
   // 유저 생성
-  public UserResponseDto createUser(CreateUserRequestDto createUserDto) {
+  public UserResponseDto createUser(CreateUserRequestDto createUserDto, MultipartFile file) {
     if(userRepository.existsByEmail(createUserDto.getEmail())){
       throw new DuplicatedException(UserException.EMAIL_EXIST);
     }
+
+    String profileLink = "";
+    if (file != null) {
+      profileLink = s3Service.uploadFile(file).getFilePath();
+    }
+
     Users user = Users.builder()
         .email(createUserDto.getEmail())
         .password(bCryptPasswordEncoder.encode(createUserDto.getPassword()))
         .username(createUserDto.getUsername())
         .nickname(createUserDto.getNickname())
+        .profileLink(profileLink)
         .role(Role.USER)
+        .ranking(-1L)
         .build();
     userRepository.save(user);
     return UserResponseDto.toDto(user);
@@ -54,6 +64,12 @@ public class UserServiceImpl implements UserService{
   @Transactional
   public UserResponseDto updateUsers(Long userId, UpdateUserRequestDto updateUserRequestDto, MultipartFile file){
     Users user = checkUserPassword(userId, updateUserRequestDto.getPassword());
+    if (file != null){
+      if(!user.getProfileLink().isEmpty()){
+        s3Service.deleteFile(user.getProfileLink());
+      }
+      user.updateProfileLink(s3Service.uploadFile(file).getFilePath());
+    }
     user.updateNickname(updateUserRequestDto.getNickname());
     userRepository.save(user);
     return UserResponseDto.toDto(user);
@@ -96,6 +112,7 @@ public class UserServiceImpl implements UserService{
     return PlayerResultDto.builder()
         .userId(user.getId())
         .nickname(user.getNickname())
+        .ranking(user.getRanking())
         .build();
   }
 }

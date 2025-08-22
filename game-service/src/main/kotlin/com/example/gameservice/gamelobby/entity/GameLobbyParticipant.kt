@@ -22,6 +22,8 @@ data class GameLobbyParticipant(
     @Column(name = "room_id")
     val roomId: Long,
 
+    val isReady:Boolean,
+
     @Column(name = "selected_ai_id")
     var selectedAiId: Long? = null
 )

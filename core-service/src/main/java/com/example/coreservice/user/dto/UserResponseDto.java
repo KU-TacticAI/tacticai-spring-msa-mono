@@ -16,13 +16,19 @@ public class UserResponseDto {
 
   private String email;
 
+  private String username;
+
   private String nickname;
+
+  private String profileLink;
 
   public static UserResponseDto toDto(Users user) {
     return UserResponseDto.builder()
         .id(user.getId())
         .email(user.getEmail())
+        .username(user.getUsername())
         .nickname(user.getNickname())
+        .profileLink(user.getProfileLink())
         .build();
   }
 }

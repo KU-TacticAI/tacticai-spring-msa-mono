@@ -4,4 +4,7 @@ import com.example.gameservice.gamelobby.entity.GameRoom
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface GameRoomRepository : JpaRepository<GameRoom, Long> {
+
+    fun findAllByGameType(gameType: String): List<GameRoom>
+
 }

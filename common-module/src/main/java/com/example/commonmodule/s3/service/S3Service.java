@@ -1,7 +1,6 @@
 package com.example.commonmodule.s3.service;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -36,9 +35,6 @@ public class S3Service {
 
   @Value("${cloud.aws.s3.bucket}")
   private String imageBucket;
-
-  @Value("${cloud.aws.s3.bucket.game}")
-  private String gameBucket;
 
   private final FileDetailRepository fileDetailRepository;
   private final AmazonS3 s3;
@@ -122,7 +118,8 @@ public class S3Service {
    */
   private String determineBucket(MultipartFile file) {
     String fileType = getFileExtension(file.getOriginalFilename());
-    return ".zip".equals(fileType) ? gameBucket : imageBucket;
+//    return ".zip".equals(fileType) ? gameBucket : imageBucket;
+    return imageBucket;
   }
 
   /**
@@ -134,13 +131,12 @@ public class S3Service {
     metadata.setContentType(file.getContentType());
 
     try (InputStream inputStream = file.getInputStream()) {
-      s3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata)
-          .withCannedAcl(CannedAccessControlList.PublicRead));
+      s3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
     } catch (IOException e) {
       throw new InternalServerException(FileErrorCode.FAIL_UPLOAD_FILE);
     }
 
-    return "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/" + fileName;
+    return "https://" + "s3.ap-northeast-2.amazonaws.com/" + bucket + "/" + fileName;
   }
 
   /**

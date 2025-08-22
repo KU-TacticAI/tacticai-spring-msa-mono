@@ -22,6 +22,14 @@ class RouteConfig {
                     .filters{it.stripPrefix(2)}
                     .uri("http://localhost:8082")
             }
+            .route("game-ws") { r ->
+                r.path("/ws/**")
+                    .filters { f ->
+                        f.dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
+                            .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST")
+                    }
+                    .uri("http://localhost:8082")
+            }
             .build()
     }
 }

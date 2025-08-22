@@ -54,7 +54,7 @@ class UserServiceImplUnitTest {
     when(userRepository.save(any())).thenReturn(savedUser);
 
     // When
-    UserResponseDto userResponseDto = userServiceImpl.createUser(testUserDto);
+    UserResponseDto userResponseDto = userServiceImpl.createUser(testUserDto, file);
     // Then
     assertNotNull(userResponseDto);
     assertEquals("test@test.com", userResponseDto.getEmail());

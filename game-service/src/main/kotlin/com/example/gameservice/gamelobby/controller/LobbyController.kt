@@ -27,9 +27,11 @@ class LobbyController(
     }
 
     // 대기방 다건 조회
-    @GetMapping
-    fun findAllRooms(): ResponseEntity<List<RoomResponseDto>> {
-        return ResponseEntity.ok().body(lobbyService.findAllRooms())
+    @GetMapping("/lobby/{gameName}")
+    fun findAllRooms(
+        @PathVariable gameName: String,
+    ): ResponseEntity<List<RoomResponseDto>> {
+        return ResponseEntity.ok().body(lobbyService.findAllRooms(gameName))
     }
 
     // 대기방 입장

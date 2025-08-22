@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 public interface UserService {
-  UserResponseDto createUser(CreateUserRequestDto createUserDto);
+  UserResponseDto createUser(CreateUserRequestDto createUserDto, MultipartFile file);
   UserResponseDto findUsers(Long userId);
   UserResponseDto updateUsers(Long userId, UpdateUserRequestDto updateUserRequestDto, MultipartFile file);
   UserResponseDto updateUserPassword(Long userId, UpdatePasswordRequestDto updatePasswordRequestDto);

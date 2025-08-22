@@ -17,14 +17,23 @@ data class GameRoom(
 
     private val gameType: String,
 
+    private val roomName: String,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status") var status: GameRoomStatus?,
 
     @Column(name = "created_by_user_id")
     private val createdByUserId: Long,
+
+    private val hostRanking: Long,
+
+    private val maxPlayers: Int,
 ){
     fun getId() : Long{return id}
     fun getGameType(): String {return gameType}
 //    fun getStatus(): GameRoomStatus? {return status}
     fun getCreatedByUserId() : Long{return createdByUserId}
+    fun getRoomName(): String {return roomName}
+    fun getHostRanking(): Long{return hostRanking}
+    fun getMaxPlayers(): Int {return maxPlayers}
 }

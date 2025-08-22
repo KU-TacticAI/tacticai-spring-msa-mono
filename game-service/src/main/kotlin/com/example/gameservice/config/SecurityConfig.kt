@@ -14,6 +14,8 @@ class SecurityConfig {
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
+            .httpBasic { it.disable() }   // 🚩 기본 인증 팝업 방지
+            .formLogin { it.disable() }
             .authorizeHttpRequests {
                 it.requestMatchers("/**").permitAll()
             }

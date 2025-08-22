@@ -12,4 +12,5 @@ interface GameLobbyParticipantRepository : JpaRepository<GameLobbyParticipant, L
     fun findByRoomIdAndUserId(roomId: Long, userId: Long): Optional<GameLobbyParticipant>
 
     fun findByRoomId(roomId: Long): List<GameLobbyParticipant>
+
 }

@@ -24,6 +24,11 @@ class JWTFilter(
         val request = exchange.request
         val response = exchange.response
         val uri = request.uri.path
+        val path = exchange.request.uri.path
+
+        if (path.startsWith("/ws") || path.startsWith("/sockjs") || path == "/websocket") {
+            return chain.filter(exchange)
+        }
 
         if (isLoginRequest(uri) || isSignInRequest(uri)) {
             return chain.filter(exchange)

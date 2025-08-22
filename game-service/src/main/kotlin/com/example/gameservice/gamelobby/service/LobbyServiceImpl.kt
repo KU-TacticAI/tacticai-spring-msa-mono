@@ -5,6 +5,7 @@ import com.example.gameservice.client.CoreClient
 import com.example.gameservice.common.GameRoomStatus
 import com.example.gameservice.exceptions.GameException
 import com.example.gameservice.gamelobby.dto.CreateRoomRequestDto
+import com.example.gameservice.gamelobby.dto.PlayerSummaryDto
 import com.example.gameservice.gamelobby.dto.ResponseLobbyDto
 import com.example.gameservice.gamelobby.dto.RoomResponseDto
 import com.example.gameservice.gamelobby.entity.GameLobbyParticipant
@@ -25,29 +26,86 @@ class LobbyServiceImpl(
 ) : LobbyService {
 
     override fun createRoom(userId: String, requestData: CreateRoomRequestDto): RoomResponseDto {
+        val user = coreClient.getUserById(userId = userId.toLong());
+
+        // maxPlayers를 DTO나 GameRoom 엔티티에 추가
+        val maxPlayers = 2
+
         val room = GameRoom(
             status = GameRoomStatus.WAITING,
             gameType = requestData.getGameType(),
-            createdByUserId = userId.toLong()
+            roomName = requestData.getRoomName(),
+            createdByUserId = userId.toLong(),
+            hostRanking = user.ranking,
+            maxPlayers = maxPlayers // GameRoom 엔티티에 필드 추가 필요
         )
         val savedRoom = gameRoomRepository.save(room)
 
-        gameLobbyParticipantRepository.save(GameLobbyParticipant(
+        // 방을 만들 때 호스트가 첫 번째 참가자가 됨
+        val player = gameLobbyParticipantRepository.save(GameLobbyParticipant(
             joinOrder = 1,
             joinedAt = LocalDateTime.now(),
             userId = userId.toLong(),
-            roomId = savedRoom.getId()
+            roomId = savedRoom.getId(),
+            isReady = false,
         ))
-        return RoomResponseDto.from(savedRoom)
+
+        val playerDto = PlayerSummaryDto(
+                userId = user.userId,
+                nickname = user.nickname,
+                ranking = user.ranking,
+                profileUrl = user.profileLink,
+                ready = true,
+                joinOrder = 1,
+            )
+
+        // DTO를 반환할 때 현재 참가자 수(1)와 최대 참가자 수(maxPlayers)를 전달
+        return RoomResponseDto.from(savedRoom, listOf(player), listOf(playerDto))
     }
 
-    override fun findAllRooms(): List<RoomResponseDto> {
-        return gameRoomRepository.findAll()
-            .map { RoomResponseDto.from(it) }
+    override fun findAllRooms(gameName: String): List<RoomResponseDto> {
+        val rooms = if ("all".equals(gameName)) {
+            gameRoomRepository.findAll()
+        } else {
+            gameRoomRepository.findAllByGameType(gameName)
+        }
+
+        return rooms.map { room ->
+            val players = gameLobbyParticipantRepository.findByRoomId(room.getId())
+
+            val playerDtos = players.map { p ->
+                val user = coreClient.getUserById(p.userId) // { id, nickname, ... }
+                PlayerSummaryDto(
+                    userId = user.userId,
+                    nickname = user.nickname,
+                    ranking = user.ranking,
+                    profileUrl = user.profileLink,
+                    ready = p.isReady,
+                    joinOrder = p.joinOrder,
+                )
+            }
+
+            RoomResponseDto.from(room, players, playerDtos)
+        }
     }
 
     override fun findRoomById(roomId: Long): RoomResponseDto {
-        return RoomResponseDto.from(findByIdOrElseThrow(roomId))
+        val room = findByIdOrElseThrow(roomId)
+        val players = gameLobbyParticipantRepository.findByRoomId(room.getId())
+
+        val playerDtos = players.map { p ->
+            val user = coreClient.getUserById(p.userId) // { id, nickname, ... }
+            PlayerSummaryDto(
+                userId = user.userId,
+                nickname = user.nickname,
+                ranking = user.ranking,
+                profileUrl = user.profileLink,
+                ready = p.isReady,
+                joinOrder = p.joinOrder,
+            )
+        }
+
+        return RoomResponseDto.from(room, players, playerDtos)
     }
 
     override fun enterRoom(roomId: Long, userId:Long): String {
@@ -56,7 +114,8 @@ class LobbyServiceImpl(
             roomId = roomId,
             userId = userId,
             joinOrder = countParticipant + 1,
-            joinedAt = LocalDateTime.now()
+            joinedAt = LocalDateTime.now(),
+            isReady = false,
         )
         gameLobbyParticipantRepository.save(participant)
 
@@ -80,7 +139,21 @@ class LobbyServiceImpl(
 
         sendGameRequestToFastApi(room)
 
-        return RoomResponseDto.from(updatedRoom)
+        val players = gameLobbyParticipantRepository.findByRoomId(room.getId())
+
+        val playerDtos = players.map { p ->
+            val user = coreClient.getUserById(p.userId) // { id, nickname, ... }
+            PlayerSummaryDto(
+                userId = user.userId,
+                nickname = user.nickname,
+                ranking = user.ranking,
+                profileUrl = user.profileLink,
+                ready = p.isReady,
+                joinOrder = p.joinOrder,
+            )
+        }
+
+        return RoomResponseDto.from(updatedRoom, players, playerDtos)
     }
 
     private fun sendGameRequestToFastApi(room: GameRoom) {

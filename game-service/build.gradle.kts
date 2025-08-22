@@ -43,6 +43,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Spring Boot Starter for WebSocket
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
+    // Spring Data Redis for Pub/Sub
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    // Jackson for JSON serialization/deserialization
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("jakarta.annotation:jakarta.annotation-api:2.1.1")
 }
 
 kotlin {

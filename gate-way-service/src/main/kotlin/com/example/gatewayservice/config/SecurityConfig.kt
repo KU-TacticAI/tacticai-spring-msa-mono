@@ -45,6 +45,12 @@ class SecurityConfig(
             .authorizeExchange { exchanges ->
                 exchanges
                     .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    // 🚩 웹소켓/SockJS 핸드셰이크와 폴백 경로 전부 허용
+                    .pathMatchers(
+                        "/ws/**",        // SockJS 기본
+                        "/websocket",    // 직접 ws 업그레이드 경로
+                        "/sockjs/**"     // 환경에 따라 생성되는 폴백 경로
+                    ).permitAll()
                     .pathMatchers(
                         "/api/**",
                         "/email",
@@ -58,7 +64,6 @@ class SecurityConfig(
                         "/api-docs/**",
                         "/swagger-ui/**",
                         "/v3/**",
-                        // 🔽 sign-in 경로는 명시적으로
                         "/users/sign-in",
                         "/api/core/users/sign-in"
                     ).permitAll()

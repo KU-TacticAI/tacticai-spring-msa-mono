@@ -1,9 +1,9 @@
 package com.example.gameservice.gamelobby.dto
 
 data class CreateRoomRequestDto(
-    private val gameId: Long,
+    private val roomName: String,
     private val gameType: String,
 ){
-    fun getGameId() = gameId;
+    fun getRoomName() = roomName;
     fun getGameType() = gameType;
 }

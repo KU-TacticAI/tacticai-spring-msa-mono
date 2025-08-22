@@ -58,10 +58,12 @@ public class RankingServiceImpl implements RankingService {
   @Transactional
   public void recalculateAllUserRanking() {
     List<Ranking> allRankings = rankingRepository.findAll(Sort.by(Sort.Direction.DESC, "totalScore"));
-
+    List<Users> allUsers = userService.findUsers(allRankings.stream().map(Ranking::getUserId).collect(Collectors.toList()));
     for (int i = 0; i < allRankings.size(); i++) {
       Ranking ranking = allRankings.get(i);
       ranking.setRank((long) (i + 1));
+      Users user = allUsers.get(i);
+      user.setRanking((long) (i + 1));
       rankingRepository.save(ranking);
     }
   }
