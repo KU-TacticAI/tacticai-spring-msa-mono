@@ -7,6 +7,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
+import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class CoreClient(
@@ -20,6 +21,24 @@ class CoreClient(
         val url = "$coreServiceUrl/api/internal/users/$userId"
         return restTemplate.getForObject(url, PlayerResultDto::class.java)
             ?: throw IllegalStateException("사용자 정보를 찾을 수 없습니다: id=$userId")
+    }
+
+    fun getUserByIds(userIds: List<Long>): List<PlayerResultDto> {
+        val url = UriComponentsBuilder.fromUriString("$coreServiceUrl/api/internal/users/list")
+            .queryParam("ids", *userIds.toTypedArray()) // Kotlin의 Spread Operator 사용
+            .build()
+            .toUriString()
+
+        val responseType = object : ParameterizedTypeReference<List<PlayerResultDto>>() {}
+
+        val response = restTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            null,
+            responseType
+        )
+
+        return response.body ?: emptyList()
     }
 
     fun getAiUrlsByIds(aiIds: List<Long?>): List<AiUrlsResponseDto> {

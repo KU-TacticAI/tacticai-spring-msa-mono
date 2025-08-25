@@ -8,6 +8,7 @@ interface LobbyService {
     fun createRoom(userId: String, requestData: CreateRoomRequestDto): RoomResponseDto?
     fun findAllRooms(gameName: String): List<RoomResponseDto>?
     fun enterRoom(roomId: Long, userId:Long): String?
+    fun leaveRoom(roomId: Long, userId: Long): String?
     fun findRoomById(roomId: Long): RoomResponseDto?
     fun selectAi(roomId: Long, userId: Long, aiId: Long): ResponseLobbyDto?
     fun startRoom(roomId: Long): RoomResponseDto?

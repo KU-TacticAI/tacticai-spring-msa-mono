@@ -5,7 +5,7 @@ import com.example.gameservice.gamelobby.entity.GameRoom
 
 data class RoomResponseDto(
     private val roomId: Long,
-    private val game: String,
+    private val gameType: String,
     private val roomName:String,
     private val status: String,
     private val hostUserId: Long,
@@ -15,7 +15,7 @@ data class RoomResponseDto(
     private val players: List<PlayerSummaryDto>?,
 ){
     fun getRoomId() = roomId
-    fun getGame() = game
+    fun getGame() = gameType
     fun getStatus() = status
     fun getHostUserId() = hostUserId
     fun getRoomName() = roomName
@@ -32,7 +32,7 @@ data class RoomResponseDto(
         ): RoomResponseDto =
             RoomResponseDto(
                 roomId = room.getId(),
-                game = room.getGameType(),
+                gameType = room.getGameType(),
                 roomName = room.getRoomName(),
                 status = room.status.toString(),
                 hostUserId = room.getCreatedByUserId(),

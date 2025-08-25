@@ -1,12 +1,7 @@
 package com.example.gameservice.config
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.messaging.Message
-import org.springframework.messaging.MessageChannel
-import org.springframework.messaging.simp.config.ChannelRegistration
-import org.springframework.messaging.simp.stomp.StompCommand
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor
-import org.springframework.messaging.support.ChannelInterceptor
+import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
@@ -15,24 +10,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
-    override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/ws")
-            .setAllowedOriginPatterns("http://localhost:3000")
-            .withSockJS()
+    override fun configureMessageBroker(config: MessageBrokerRegistry) {
+        // 메시지 브로커가 /topic으로 시작하는 주소를 구독하는 클라이언트들에게 메시지를 전달하도록 설정
+        config.enableSimpleBroker("/topic")
+        // 클라이언트에서 서버로 메시지를 보낼 때 사용하는 주소의 접두사 설정
+        config.setApplicationDestinationPrefixes("/app")
     }
 
-    override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        registration.interceptors(object : ChannelInterceptor {
-            override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
-                val accessor = StompHeaderAccessor.wrap(message)
-                if (StompCommand.CONNECT == accessor.command) {
-                    val bearer = accessor.getFirstNativeHeader("Authorization") // "Bearer xxx"
-                    // TODO: JWT 파싱/검증 → 실패 시 예외 던지기 (CONNECT 에러로 전달됨)
-                    // 성공 시 사용자 컨텍스트 부여
-                    // accessor.user = UsernamePasswordAuthenticationToken(principal, null, authorities)
-                }
-                return message
-            }
-        })
+    override fun registerStompEndpoints(registry: StompEndpointRegistry) {
+        // 웹소켓 연결을 위한 엔드포인트 설정
+        // 클라이언트는 /ws 주소로 STOMP 연결을 시도
+        registry.addEndpoint("/ws")
+            .setAllowedOriginPatterns("*") // 모든 출처에서의 연결을 허용 (CORS)
+            .withSockJS() // SockJS를 사용하여 웹소켓을 지원하지 않는 브라우저에서도 통신 가능하도록 함
     }
 }

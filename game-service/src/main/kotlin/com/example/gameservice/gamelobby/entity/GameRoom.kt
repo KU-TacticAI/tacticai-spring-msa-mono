@@ -28,6 +28,7 @@ data class GameRoom(
     private val hostRanking: Long,
 
     private val maxPlayers: Int,
+
 ){
     fun getId() : Long{return id}
     fun getGameType(): String {return gameType}

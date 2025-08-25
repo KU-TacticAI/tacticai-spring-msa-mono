@@ -44,6 +44,16 @@ class LobbyController(
         return ResponseEntity.ok().body(lobbyService.enterRoom(roomId, userId))
     }
 
+    // 대기방 나가기
+    @PostMapping("/{roomId}/leave")
+    fun leaveRoom(
+        @NotNull @PathVariable roomId: Long,
+        @RequestHeader("Authorization") token: String
+    ): ResponseEntity<String> {
+        val userId = jwtUtil.getUserId(token).toLong()
+        return ResponseEntity.ok().body(lobbyService.leaveRoom(roomId, userId))
+    }
+
     // 대기방 단건 조회
     @GetMapping("/{roomId}")
     fun findRoom(@PathVariable roomId: Long): ResponseEntity<RoomResponseDto> {
