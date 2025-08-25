@@ -15,7 +15,7 @@ data class RoomResponseDto(
     private val players: List<PlayerSummaryDto>?,
 ){
     fun getRoomId() = roomId
-    fun getGame() = gameType
+    fun getGameType() = gameType
     fun getStatus() = status
     fun getHostUserId() = hostUserId
     fun getRoomName() = roomName
