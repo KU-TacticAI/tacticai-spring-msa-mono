@@ -1,5 +1,6 @@
 package com.example.gameservice.gamelobby.service
 
+import com.example.commonmodule.dto.AiUrlsResponseDto
 import com.example.commonmodule.exceptions.NotFoundException
 import com.example.gameservice.client.CoreClient
 import com.example.gameservice.common.GameRoomStatus
@@ -88,7 +89,7 @@ class LobbyServiceImpl(
         return if (isRoomDeleted) "방이 삭제되었습니다." else "퇴장 완료"
     }
 
-    override fun findRoomById(roomId: Long): RoomResponseDto {
+    override fun findRoomById(roomId: Long, selectedAi: AiUrlsResponseDto?): RoomResponseDto {
         val room = findByIdOrElseThrow(roomId)
         val players = gameLobbyParticipantRepository.findByRoomId(room.getId())
 
@@ -101,6 +102,7 @@ class LobbyServiceImpl(
                 profileUrl = user.profileLink,
                 ready = p.isReady,
                 joinOrder = p.joinOrder,
+                aiAgent = selectedAi,
             )
         }
 
@@ -133,9 +135,11 @@ class LobbyServiceImpl(
         participant.selectedAiId = aiId
         val updatedParticipant = gameLobbyParticipantRepository.save(participant)
 
-        broadcastRoomState(roomId)
+        val selectedAi = coreClient.getAiUrlById(aiId);
+
+        broadcastRoomState(roomId, selectedAi)
         // Note: Selecting an AI doesn't change the lobby list, so no lobby update.
-        return ResponseLobbyDto.from(updatedParticipant)
+        return ResponseLobbyDto.from(updatedParticipant, selectedAi)
     }
 
     override fun startRoom(roomId: Long): RoomResponseDto {
@@ -164,8 +168,8 @@ class LobbyServiceImpl(
             .orElseThrow { NotFoundException(GameException.NOT_FOUND_AI) }
     }
 
-    private fun broadcastRoomState(roomId: Long) {
-        val roomState = findRoomById(roomId)
+    private fun broadcastRoomState(roomId: Long, selectedAi: AiUrlsResponseDto? = null) {
+        val roomState = findRoomById(roomId, selectedAi)
         val topic = "/topic/game.room.$roomId.state"
         messagingTemplate.convertAndSend(topic, roomState)
     }
@@ -211,6 +215,7 @@ class LobbyServiceImpl(
                         profileUrl = it.profileLink,
                         ready = p.isReady,
                         joinOrder = p.joinOrder,
+                        aiAgent = null,
                     )
                 }
             }

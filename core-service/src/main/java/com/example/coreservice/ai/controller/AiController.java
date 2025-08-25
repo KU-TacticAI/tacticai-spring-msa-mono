@@ -1,5 +1,6 @@
 package com.example.coreservice.ai.controller;
 
+import com.example.commonmodule.util.JWTUtil;
 import com.example.coreservice.ai.dto.AiResponseDto;
 import com.example.coreservice.ai.dto.CreateAiRequestDto;
 import com.example.coreservice.ai.dto.DeleteAiRequestDto;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,12 +27,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class AiController {
 
   private final AiService aiService;
+  private final JWTUtil jwtUtil;
 
-  @PostMapping("/user/{userId}")
+  @PostMapping("/user")
   public ResponseEntity<AiResponseDto> createAIAgent(
-      @PathVariable Long userId,
+      @RequestHeader("Authorization") String token,
       @RequestBody CreateAiRequestDto requestDto
   ) {
+    Long userId = Long.parseLong(jwtUtil.getUserId(token));
     return ResponseEntity.ok().body(aiService.createAI(userId, requestDto));
   }
 
@@ -42,35 +46,39 @@ public class AiController {
     return ResponseEntity.ok().body(aiService.uploadAiFile(aiId, file));
   }
 
-  @GetMapping("/{id}/user/{userId}")
+  @GetMapping("/{id}/user")
   public ResponseEntity<AiResponseDto> getAIAgent(
       @PathVariable Long id,
-      @PathVariable Long userId
+      @RequestHeader("Authorization") String token
       ) {
+    Long userId = Long.parseLong(jwtUtil.getUserId(token));
     return ResponseEntity.ok().body(aiService.getAIAgentById(id, userId));
   }
 
-  @GetMapping("/user/{userId}")
+  @GetMapping("/user")
   public ResponseEntity<List<AiResponseDto>> getAllAIAgents(
-      @PathVariable Long userId
+      @RequestHeader("Authorization") String token
   ) {
+    Long userId = Long.parseLong(jwtUtil.getUserId(token));
     return ResponseEntity.ok().body(aiService.getAllAI(userId));
   }
 
-  @PutMapping("/{id}/user/{userId}")
+  @PutMapping("/{id}/user/")
   public ResponseEntity<AiResponseDto> updateAIAgent(
       @PathVariable Long id,
-      @PathVariable Long userId,
+      @RequestHeader("Authorization") String token,
       @RequestBody UpdateAiRequestDto requestDto
   ) {
+    Long userId = Long.parseLong(jwtUtil.getUserId(token));
     return ResponseEntity.ok().body(aiService.updateAi(id, userId, requestDto));
   }
 
-  @DeleteMapping("/{id}/user/{userId}")
+  @DeleteMapping("/{id}/user")
   public ResponseEntity<String> deleteAIAgent(
       @PathVariable Long id,
-      @PathVariable Long userId,
+      @RequestHeader("Authorization") String token,
       @RequestBody DeleteAiRequestDto requestDto) {
+    Long userId = Long.parseLong(jwtUtil.getUserId(token));
     return ResponseEntity.ok().body(aiService.deleteAIAgent(id, userId, requestDto));
   }
 

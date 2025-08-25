@@ -56,4 +56,15 @@ class CoreClient(
 
         return response.body ?: emptyList()
     }
+
+    fun getAiUrlById(aiId: Long?): AiUrlsResponseDto {
+        if (aiId == null) {
+            throw IllegalArgumentException("AI ID는 null일 수 없습니다.")
+        }
+
+        val url = "$coreServiceUrl/api/internal/ai/$aiId"
+
+        return restTemplate.getForObject(url, AiUrlsResponseDto::class.java)
+            ?: throw IllegalStateException("AI 정보를 찾을 수 없습니다: id=$aiId")
+    }
 }

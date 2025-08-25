@@ -1,4 +1,4 @@
-package com.example.coreservice.enums;
+package com.example.commonmodule.enums;
 
 public enum Tier {
   BRONZE(1),

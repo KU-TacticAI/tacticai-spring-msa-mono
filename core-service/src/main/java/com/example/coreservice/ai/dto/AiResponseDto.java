@@ -8,7 +8,9 @@ import lombok.Getter;
 @Builder
 public class AiResponseDto {
 
-  private Long id;
+  private Long aiId;
+
+  private Long userId;
 
   private String name;
 
@@ -20,7 +22,8 @@ public class AiResponseDto {
 
   public static AiResponseDto toDto (AiAgent aiAgent) {
     return AiResponseDto.builder()
-        .id(aiAgent.getId())
+        .aiId(aiAgent.getId())
+        .userId(aiAgent.getUserId())
         .name(aiAgent.getName())
         .description(aiAgent.getDescription())
         .gameType(aiAgent.getGameType())

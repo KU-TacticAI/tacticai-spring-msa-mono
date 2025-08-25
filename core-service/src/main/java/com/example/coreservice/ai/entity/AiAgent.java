@@ -2,7 +2,7 @@ package com.example.coreservice.ai.entity;
 
 import com.example.commonmodule.base_entity.BaseDeletedAtEntity;
 import com.example.commonmodule.enums.AiStatus;
-import com.example.coreservice.enums.Tier;
+import com.example.commonmodule.enums.Tier;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
