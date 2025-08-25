@@ -93,17 +93,41 @@ class LobbyServiceImpl(
         val room = findByIdOrElseThrow(roomId)
         val players = gameLobbyParticipantRepository.findByRoomId(room.getId())
 
-        val playerDtos = players.map { p ->
-            val user = coreClient.getUserById(p.userId)
-            PlayerSummaryDto(
-                userId = user.userId,
-                nickname = user.nickname,
-                ranking = user.ranking,
-                profileUrl = user.profileLink,
-                ready = p.isReady,
-                joinOrder = p.joinOrder,
-                aiAgent = selectedAi,
-            )
+        val allSelectedAiIds = players.mapNotNull { it.selectedAiId }.distinct()
+
+        val aiMap = if (allSelectedAiIds.isNotEmpty()) {
+            coreClient.getAiUrlsByIds(allSelectedAiIds).associateBy { it.aiId }
+        } else {
+            emptyMap()
+        }
+
+        val allUserIds = players.map { it.userId }.distinct()
+
+        val userMap = if (allUserIds.isNotEmpty()) {
+            coreClient.getUserByIds(allUserIds).associateBy { it.userId }
+        } else {
+            emptyMap()
+        }
+
+        val playerDtos = players.mapNotNull { p ->
+            // userMap에서 유저 정보 가져오기
+            val user = userMap[p.userId]
+            if (user == null) {
+                null // 유저 정보가 없으면 dto 생성 건너뛰기
+            } else {
+                // aiMap에서 AI 정보 가져오기
+                val aiAgent = p.selectedAiId?.let { aiMap[it] }
+
+                PlayerSummaryDto(
+                    userId = user.userId,
+                    nickname = user.nickname,
+                    ranking = user.ranking,
+                    profileUrl = user.profileLink,
+                    ready = p.isReady,
+                    joinOrder = p.joinOrder,
+                    selectedAi = aiAgent, // AI 정보가 있다면 그대로 할당
+                )
+            }
         }
 
         return RoomResponseDto.from(room, players, playerDtos)
@@ -138,7 +162,6 @@ class LobbyServiceImpl(
         val selectedAi = coreClient.getAiUrlById(aiId);
 
         broadcastRoomState(roomId, selectedAi)
-        // Note: Selecting an AI doesn't change the lobby list, so no lobby update.
         return ResponseLobbyDto.from(updatedParticipant, selectedAi)
     }
 
@@ -215,7 +238,7 @@ class LobbyServiceImpl(
                         profileUrl = it.profileLink,
                         ready = p.isReady,
                         joinOrder = p.joinOrder,
-                        aiAgent = null,
+                        selectedAi = null,
                     )
                 }
             }
