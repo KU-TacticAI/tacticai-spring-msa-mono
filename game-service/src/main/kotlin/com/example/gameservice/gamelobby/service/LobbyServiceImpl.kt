@@ -123,7 +123,7 @@ class LobbyServiceImpl(
                     nickname = user.nickname,
                     ranking = user.ranking,
                     profileUrl = user.profileLink,
-                    ready = p.isReady,
+                    isReady = p.isReady,
                     joinOrder = p.joinOrder,
                     selectedAi = aiAgent, // AI 정보가 있다면 그대로 할당
                 )
@@ -245,7 +245,7 @@ class LobbyServiceImpl(
                         nickname = it.nickname,
                         ranking = it.ranking,
                         profileUrl = it.profileLink,
-                        ready = p.isReady,
+                        isReady = p.isReady,
                         joinOrder = p.joinOrder,
                         selectedAi = null,
                     )
