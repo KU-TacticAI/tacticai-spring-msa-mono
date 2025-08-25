@@ -178,8 +178,17 @@ class LobbyServiceImpl(
         return roomResponse
     }
 
+    override fun updateReady(type: String, roomId: Long, userId: Long) {
+        val participant = gameLobbyParticipantRepository.findByRoomIdAndUserId(roomId, userId)
+            .orElseThrow { NotFoundException(GameException.PARTICIPANT_NOT_FOUND) }
+
+        participant.isReady = !participant.isReady
+        gameLobbyParticipantRepository.save(participant)
+
+        broadcastRoomState(roomId)
+    }
+
     private fun sendGameRequestToFastApi(room: GameRoom) {
-        // ... (omitted for brevity, no changes)
     }
 
     private fun findByIdOrElseThrow(roomId: Long): GameRoom {

@@ -13,4 +13,5 @@ interface LobbyService {
     fun findRoomById(roomId: Long, selectedAi: AiUrlsResponseDto? = null): RoomResponseDto?
     fun selectAi(roomId: Long, userId: Long, aiId: Long): ResponseLobbyDto?
     fun startRoom(roomId: Long): RoomResponseDto?
+    fun updateReady(type: String, roomId: Long, userId: Long)
 }
