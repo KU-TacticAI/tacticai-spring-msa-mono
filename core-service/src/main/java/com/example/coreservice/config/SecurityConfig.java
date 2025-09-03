@@ -5,6 +5,7 @@ import com.example.coreservice.auth.service.TokenService;
 import com.example.coreservice.enums.Role;
 import com.example.coreservice.filter.CustomLoginFilter;
 import com.example.coreservice.filter.CustomLogoutFilter;
+import com.example.coreservice.filter.JwtAuthorizationFilter;
 import com.example.coreservice.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,19 +40,6 @@ public class SecurityConfig {
 //  private final SuccessHandler successHandler;
   //  private final FailureHandler failureHandler;
   private final JWTUtil jwtUtil;
-
-  private final String[] WHITE_LIST = new String[]{
-//      "/", "/email","/mail-check", "/oauth2/**", "*/sign-in", "/oauth2-login", "/refresh", "/error", "/token/refresh", "/h2-console/**", "/api*", "/api-docs/**", "swagger-ui/**", "v3/**"
-      "/**"
-  };
-
-  private final String[] ADMIN_LIST = new String[]{
-//      "/admin/**", "/users/{id}/update-role"
-  };
-
-//  private String[] MANAGER_LIST = new String[]{
-//      "/manager/**"
-//  };
 
   @Value("${spring.profiles.front_url}")
   private String frontUrl;
@@ -119,17 +107,22 @@ public class SecurityConfig {
 //        .successHandler(successHandler));
 
     http.authorizeHttpRequests((auth) -> auth
+        .requestMatchers(
+            "/login",
+            "/users/sign-in",
+            "/token/refresh",
+            "/h2-console/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/api-docs/**",
+            "/api/internal/**"
+        ).permitAll()
         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-        // 전체 허용 API
-//        .requestMatchers(WHITE_LIST).permitAll()
-        // ADMIN 전용 API
-//        .requestMatchers(ADMIN_LIST).hasAuthority(Role.ADMIN.name())
-        // 기타 요청은 인증 필요
-//        .anyRequest().authenticated()
-        .anyRequest().permitAll()
+        .anyRequest().hasAuthority(Role.USER.name())
     );
 
     http.addFilterBefore(new CustomLogoutFilter(jwtUtil), LogoutFilter.class);
+    http.addFilterBefore(new JwtAuthorizationFilter(jwtUtil), CustomLoginFilter.class);
     http.addFilterAt(
         new CustomLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil),
         UsernamePasswordAuthenticationFilter.class);

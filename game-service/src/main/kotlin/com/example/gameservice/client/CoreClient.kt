@@ -15,7 +15,9 @@ class CoreClient(
     @Value("\${core.service.url}")
     private val coreServiceUrl: String
 ) {
-    private val restTemplate = restTemplateBuilder.build()
+    private val restTemplate = restTemplateBuilder
+        .additionalInterceptors(AuthHeaderInterceptor())
+        .build()
 
     fun getUserById(userId: Long): PlayerResultDto {
         val url = "$coreServiceUrl/api/internal/users/$userId"
