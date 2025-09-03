@@ -23,13 +23,13 @@ data class GameRoom(
     @Column(name = "status") var status: GameRoomStatus?,
 
     @Column(name = "created_by_user_id")
-    private val createdByUserId: Long,
+    private var createdByUserId: Long,
 
     private val hostRanking: Long,
 
     private val maxPlayers: Int,
 
-){
+    ){
     fun getId() : Long{return id}
     fun getGameType(): String {return gameType}
 //    fun getStatus(): GameRoomStatus? {return status}
@@ -37,4 +37,9 @@ data class GameRoom(
     fun getRoomName(): String {return roomName}
     fun getHostRanking(): Long{return hostRanking}
     fun getMaxPlayers(): Int {return maxPlayers}
+
+    fun setUserId(id: Long):Long{
+        createdByUserId = id
+        return createdByUserId
+    }
 }
