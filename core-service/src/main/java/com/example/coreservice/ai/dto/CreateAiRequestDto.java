@@ -11,4 +11,6 @@ public class CreateAiRequestDto {
 
   private String description;
 
+  private String version;
+
 }
