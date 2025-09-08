@@ -24,21 +24,28 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration().apply {
             allowCredentials = true
-            allowedOrigins = listOf("http://localhost:3000", "http://127.0.0.1:3000")
+            // 여러 환경/도메인 허용
+            allowedOriginPatterns = listOf(
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "https://*.playcation.store"
+                // 필요시 환경변수에서 읽은 운영 프론트 URL도 추가
+                // System.getenv("FRONT_URL")?.let { addAllowedOriginPattern(it) }
+            )
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
-            exposedHeaders = listOf("Authorization", "Location", "Link", "X-Total-Count")
+            exposedHeaders = listOf("Authorization", "Location", "Link", "X-Total-Count", "Set-Cookie")
             maxAge = 3600
         }
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", config)
-        return source
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", config)
+        }
     }
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
-            .cors { }
+            .cors { it.disable() }
             .csrf { it.disable() }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }

@@ -10,6 +10,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -78,8 +79,10 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     String userId = customUserDetails.getUserId().toString();
     String role = authentication.getAuthorities().iterator().next().getAuthority();
 
+    String sessionId = LocalDateTime.now().toString() + userId + java.util.UUID.randomUUID().toString();
+
     // JWT 토큰 생성
-    String[] tokens = jwtUtil.generateTokens(userId, role);
+    String[] tokens = jwtUtil.generateTokens(userId, role, sessionId);
     String accessToken = tokens[0];
     String refreshToken = tokens[1];
     Map<String, String> body = new HashMap<>();

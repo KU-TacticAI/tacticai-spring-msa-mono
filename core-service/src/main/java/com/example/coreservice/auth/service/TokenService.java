@@ -27,21 +27,29 @@ public class TokenService {
     validateRefreshToken(refresh);
 
     String userId = jwtUtil.getUserId(refresh);
+//    String userId = "3";
     String auth= jwtUtil.getAuth(refresh);
 
-    if (!jwtUtil.checkRefreshTokenMatch(userId, refresh)) {
+    if (!jwtUtil.checkRefreshTokenMatch(userId,auth, refresh)) {
       throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
     }
 
-    String redisKey = userId + auth;
+    String redisKey = TokenSettings.REFRESH_TOKEN_CATEGORY + userId + auth;
     jwtUtil.deleteRefreshTokenFromRedis(redisKey);
     Cookie cookie = new Cookie(TokenSettings.REFRESH_TOKEN_CATEGORY, null);
     cookie.setMaxAge(0);
     cookie.setPath("/");
     response.addCookie(cookie);
+    String sid    = jwtUtil.getSessionId(refresh);
+
+    String currentSid = jwtUtil.getCurrentSession(userId, auth);
+    if (currentSid == null || !currentSid.equals(sid)) {
+      // 다른 기기에서 재로그인된 상태 → 이 refresh는 폐기
+      throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
+    }
 
     // JWT 토큰 생성
-    String[] tokens = jwtUtil.generateTokens(userId, auth);
+    String[] tokens = jwtUtil.generateTokens(userId, auth, currentSid);
     String accessToken = tokens[0];
     String refreshToken = tokens[1];
     Map<String, String> body = new HashMap<>();
