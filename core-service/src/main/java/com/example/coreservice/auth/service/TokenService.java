@@ -7,7 +7,12 @@ import com.example.commonmodule.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,19 +21,49 @@ public class TokenService {
 
   private final JWTUtil jwtUtil;
 
-  public String[] createNewToken(HttpServletRequest request) {
+  public String[] createNewToken(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
     String refresh = extractRefreshToken(request);
     validateRefreshToken(refresh);
 
     String userId = jwtUtil.getUserId(refresh);
-    String auth = jwtUtil.getAuth(refresh);
+//    String userId = "3";
+    String auth= jwtUtil.getAuth(refresh);
 
-    if (!jwtUtil.checkRefreshTokenMatch(userId, refresh)) {
+    if (!jwtUtil.checkRefreshTokenMatch(userId,auth, refresh)) {
       throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
     }
 
-    // 새로운 액세스 & 리프레시 토큰 생성
-    return jwtUtil.generateTokens(userId, auth);
+    String redisKey = TokenSettings.REFRESH_TOKEN_CATEGORY + userId + auth;
+    jwtUtil.deleteRefreshTokenFromRedis(redisKey);
+    Cookie cookie = new Cookie(TokenSettings.REFRESH_TOKEN_CATEGORY, null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
+    String sid    = jwtUtil.getSessionId(refresh);
+
+    String currentSid = jwtUtil.getCurrentSession(userId, auth);
+    if (currentSid == null || !currentSid.equals(sid)) {
+      // 다른 기기에서 재로그인된 상태 → 이 refresh는 폐기
+      throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
+    }
+
+    // JWT 토큰 생성
+    String[] tokens = jwtUtil.generateTokens(userId, auth, currentSid);
+    String accessToken = tokens[0];
+    String refreshToken = tokens[1];
+    Map<String, String> body = new HashMap<>();
+    body.put("token", accessToken);
+    // refresh token 쿠키 설정
+    response.addCookie(jwtUtil.createCookie(TokenSettings.REFRESH_TOKEN_CATEGORY, refreshToken));
+
+    response.setStatus(HttpServletResponse.SC_OK); // 302 Found 설정
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.getWriter().write(
+        "{\"token\" : \"" + accessToken + "\"}"
+    );
+
+    return tokens;
   }
 
   // HTTP 요청에서 Refresh 토큰 추출

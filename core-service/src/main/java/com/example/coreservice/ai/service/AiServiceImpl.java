@@ -1,5 +1,7 @@
 package com.example.coreservice.ai.service;
 
+import com.example.commonmodule.enums.AiStatus;
+import com.example.commonmodule.enums.Tier;
 import com.example.commonmodule.s3.entity.FileDetail;
 import com.example.commonmodule.s3.service.S3Service;
 import com.example.coreservice.ai.dto.AiResponseDto;
@@ -32,14 +34,30 @@ public class AiServiceImpl implements AiService {
   private final AiFileRepository aiFileRepository;
 
   @Override
-  public AiResponseDto createAI(Long userId, CreateAiRequestDto requestDto) {
+  @Transactional
+  public AiResponseDto createAI(Long userId, CreateAiRequestDto requestDto, MultipartFile file) {
+
+    FileDetail uploadAiFile = s3Service.uploadFile(file);
+
     AiAgent aiAgent = AiAgent.builder()
         .userId(userId)
         .name(requestDto.getName())
         .gameType(requestDto.getGameType())
         .description(requestDto.getDescription())
+        .version(requestDto.getVersion())
+        .aiUrl(uploadAiFile.getFilePath())
+        .aiSize(uploadAiFile.getFileSize())
+        .score(0L)
+        .tier(Tier.BRONZE)
+        .status(AiStatus.READY)
         .build();
     AiAgent savedAi = aiRepository.save(aiAgent);
+
+    AiFile aiFile = AiFile.builder()
+        .aiId(savedAi.getId().toString())
+        .fileDetailId(uploadAiFile.getId().toString())
+        .build();
+    aiFileRepository.save(aiFile);
 
 //    UserAi userAi = UserAi.builder()
 //        .userId(userId)
@@ -63,19 +81,34 @@ public class AiServiceImpl implements AiService {
 
   @Override
   @Transactional
-  public AiResponseDto updateAi(Long id, Long userId, UpdateAiRequestDto requestDto) {
+  public AiResponseDto updateAi(Long id, Long userId, UpdateAiRequestDto requestDto, MultipartFile file) {
     AiAgent aiAgent = aiRepository.findByIdOrElseThrow(id);
 
     if(requestDto.getName() != null) {
       aiAgent.updateName(requestDto.getName());
     }
 
-    if(requestDto.getGameType() != null) {
-      aiAgent.updateGameType(requestDto.getGameType());
+    if(requestDto.getVersion() != null) {
+      aiAgent.updateVersion(requestDto.getVersion());
     }
 
     if(requestDto.getDescription() != null) {
       aiAgent.updateDescription(requestDto.getDescription());
+    }
+
+    if(file !=null && !file.isEmpty()){
+      aiFileRepository.deleteByAiId(aiAgent.getId().toString());
+
+      s3Service.deleteFile(aiAgent.getAiUrl());
+      FileDetail updateFile = s3Service.uploadFile(file);
+      aiAgent.updateAiUrl(updateFile.getFilePath());
+      aiAgent.updateAiSize(updateFile.getFileSize());
+
+      AiFile aiFile = AiFile.builder()
+          .aiId(aiAgent.getId().toString())
+          .fileDetailId(aiAgent.getId().toString())
+          .build();
+      aiFileRepository.save(aiFile);
     }
 
     aiRepository.save(aiAgent);
@@ -88,6 +121,11 @@ public class AiServiceImpl implements AiService {
     userService.checkUserPassword(userId, requestDto.getPassword());
 
     AiAgent aiAgent = aiRepository.findByIdOrElseThrow(id);
+
+    aiFileRepository.deleteByAiId(aiAgent.getId().toString());
+
+    s3Service.deleteFile(aiAgent.getAiUrl());
+
     aiAgent.delete();
     aiRepository.save(aiAgent);
     return "삭제되었습니다.";

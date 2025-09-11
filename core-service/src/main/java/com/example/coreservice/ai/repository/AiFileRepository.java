@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AiFileRepository extends JpaRepository<AiFile, Long> {
 
+  void deleteByAiId(String aiId);
 }

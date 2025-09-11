@@ -29,13 +29,14 @@ public class AiController {
   private final AiService aiService;
   private final JWTUtil jwtUtil;
 
-  @PostMapping("/user")
+  @PostMapping
   public ResponseEntity<AiResponseDto> createAIAgent(
       @RequestHeader("Authorization") String token,
-      @RequestBody CreateAiRequestDto requestDto
+      @RequestPart CreateAiRequestDto requestDto,
+      @RequestPart MultipartFile file
   ) {
     Long userId = Long.parseLong(jwtUtil.getUserId(token));
-    return ResponseEntity.ok().body(aiService.createAI(userId, requestDto));
+    return ResponseEntity.ok().body(aiService.createAI(userId, requestDto, file));
   }
 
   @PostMapping("/{aiId}/files")
@@ -46,7 +47,7 @@ public class AiController {
     return ResponseEntity.ok().body(aiService.uploadAiFile(aiId, file));
   }
 
-  @GetMapping("/{id}/user")
+  @GetMapping("/{id}")
   public ResponseEntity<AiResponseDto> getAIAgent(
       @PathVariable Long id,
       @RequestHeader("Authorization") String token
@@ -55,7 +56,7 @@ public class AiController {
     return ResponseEntity.ok().body(aiService.getAIAgentById(id, userId));
   }
 
-  @GetMapping("/user")
+  @GetMapping
   public ResponseEntity<List<AiResponseDto>> getAllAIAgents(
       @RequestHeader("Authorization") String token
   ) {
@@ -63,17 +64,18 @@ public class AiController {
     return ResponseEntity.ok().body(aiService.getAllAI(userId));
   }
 
-  @PutMapping("/{id}/user/")
+  @PutMapping("/{id}")
   public ResponseEntity<AiResponseDto> updateAIAgent(
       @PathVariable Long id,
       @RequestHeader("Authorization") String token,
-      @RequestBody UpdateAiRequestDto requestDto
+      @RequestPart(required = false) UpdateAiRequestDto requestDto,
+      @RequestPart(required = false) MultipartFile file
   ) {
     Long userId = Long.parseLong(jwtUtil.getUserId(token));
-    return ResponseEntity.ok().body(aiService.updateAi(id, userId, requestDto));
+    return ResponseEntity.ok().body(aiService.updateAi(id, userId, requestDto, file));
   }
 
-  @DeleteMapping("/{id}/user")
+  @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteAIAgent(
       @PathVariable Long id,
       @RequestHeader("Authorization") String token,

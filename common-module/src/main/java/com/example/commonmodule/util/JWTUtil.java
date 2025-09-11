@@ -83,38 +83,59 @@ public class JWTUtil {
    * @param role 사용자 권한
    * @return [0] -> 액세스 토큰, [1] -> 리프레시 토큰
    */
-  public String[] generateTokens(String userId, String role) {
-    String access = createJwt(TokenSettings.ACCESS_TOKEN_CATEGORY, userId, role, TokenSettings.ACCESS_TOKEN_EXPIRATION);
-    String refresh = createJwt(TokenSettings.REFRESH_TOKEN_CATEGORY, TokenSettings.REFRESH_TOKEN_CATEGORY + userId, role, TokenSettings.REFRESH_TOKEN_EXPIRATION);
+  public String[] generateTokens(String userId, String role, String sessionId) {
+    String access = createJwt(TokenSettings.ACCESS_TOKEN_CATEGORY, userId, role, sessionId, TokenSettings.ACCESS_TOKEN_EXPIRATION);
+    String refresh = createJwt(TokenSettings.REFRESH_TOKEN_CATEGORY, userId, role, sessionId, TokenSettings.REFRESH_TOKEN_EXPIRATION);
 
-    storeRefreshToken(TokenSettings.REFRESH_TOKEN_CATEGORY + userId + role, refresh);
+    String redisKey = TokenSettings.REFRESH_TOKEN_CATEGORY + userId + role;
+
+    storeRefreshToken(redisKey, refresh);
+    storeCurrentSession(userId, role, sessionId, Duration.ofMillis(TokenSettings.REFRESH_TOKEN_EXPIRATION));
 
     return new String[]{access, refresh};
   }
 
   // 토큰을 생성하는 메소드
-  public String createJwt(String category, String userId, String role, Long expiredMs) {
+  public String createJwt(String category, String userId, String role, String sessionId, Long expiredMs) {
 
     return Jwts.builder()
         .issuer(TokenSettings.TOKEN_ISSUER) // 발급자 설정
         .claim("category", category)  // 토큰 카테고리 ( access / refresh )
         .claim("userId", userId)  // 토큰에 있는 유저 Id
         .claim("role", role)      // 유저의 권한
+        .claim(TokenSettings.CLAIM_SID, sessionId) // 세션 아이디
         .issuedAt(new Date(System.currentTimeMillis())) // 토큰 생성 일자
         .expiration(new Date(System.currentTimeMillis() + expiredMs)) // 토큰 만료시간
         .signWith(secretKey)  // secretKey를 통한 토큰 암호화
         .compact();
   }
 
+  // SessionId를 가져오는 메소드
+  public String getSessionId(String token) {
+    return Jwts.parser().verifyWith(secretKey).build()
+        .parseSignedClaims(trimJWT(token)).getPayload()
+        .get(TokenSettings.CLAIM_SID, String.class);
+  }
+
+  public void storeCurrentSession(String userId, String auth, String sessionId, Duration ttl) {
+    redisTemplate.opsForValue().set("session:"+userId + auth, sessionId, ttl);
+  }
+  public String getCurrentSession(String userId, String auth) {
+    return redisTemplate.opsForValue().get("session:"+userId + auth);
+  }
+  public void clearCurrentSession(String userId, String auth) {
+    redisTemplate.delete("session:"+userId + auth);
+  }
+
   /**
    * Redis에 Refresh Token을 저장
    *
-   * @param userId 사용자 ID
+   * @param redisKey 레디스 키
    * @param refreshToken 저장할 리프레시 토큰
    */
-  public void storeRefreshToken(String userId, String refreshToken) {
+  public void storeRefreshToken(String redisKey, String refreshToken) {
     ValueOperations<String, String> ops = redisTemplate.opsForValue();
-    ops.set(userId, refreshToken, Duration.ofMillis(TokenSettings.REFRESH_TOKEN_EXPIRATION));
+    ops.set(redisKey, refreshToken, Duration.ofMillis(TokenSettings.REFRESH_TOKEN_EXPIRATION));
   }
 
   /**
@@ -125,6 +146,7 @@ public class JWTUtil {
    */
   public String fetchRefreshTokenFromRedis(String userId) {
     return redisTemplate.opsForValue().get(userId);
+//    return redisTemplate.opsForValue().get("refresh:" + userId);
   }
 
   /**
@@ -132,6 +154,7 @@ public class JWTUtil {
    */
   public void deleteRefreshTokenFromRedis(String userId) {
     redisTemplate.delete(userId);
+//    redisTemplate.delete("refresh:" + userId);
   }
 
   /**
@@ -158,9 +181,12 @@ public class JWTUtil {
    * @param userId 사용자 ID
    * @param refreshToken 요청된 Refresh Token
    */
-  public boolean checkRefreshTokenMatch(String userId, String refreshToken) {
-    String storedToken = redisTemplate.opsForValue().get(userId);
+  public boolean checkRefreshTokenMatch(String userId, String auth, String refreshToken) {
+    String redisKey = TokenSettings.REFRESH_TOKEN_CATEGORY + userId + auth;
+    String storedToken = redisTemplate.opsForValue().get(redisKey);
     return storedToken != null && storedToken.equals(refreshToken);
+//    String storedToken = redisTemplate.opsForValue().get("refresh:" + userId);
+//    return storedToken != null && storedToken.equals(refreshToken);
   }
 
   /**

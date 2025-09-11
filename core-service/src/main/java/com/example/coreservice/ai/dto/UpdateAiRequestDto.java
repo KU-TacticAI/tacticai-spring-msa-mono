@@ -7,7 +7,7 @@ public class UpdateAiRequestDto {
 
   private String name;
 
-  private String gameType;
+  private String version;
 
   private String description;
 

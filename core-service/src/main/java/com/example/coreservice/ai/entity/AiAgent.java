@@ -41,14 +41,18 @@ public class AiAgent extends BaseDeletedAtEntity {
   @Enumerated(EnumType.STRING)
   private AiStatus status;
 
+  private String version;
+
   private String aiUrl = null;
+
+  private Long aiSize = null;
 
   public void updateName(String name){
     this.name = name;
   }
 
-  public void updateGameType(String gameType){
-    this.gameType = gameType;
+  public void updateVersion(String version){
+    this.version = version;
   }
 
   public void updateDescription(String description){
@@ -59,4 +63,11 @@ public class AiAgent extends BaseDeletedAtEntity {
     this.aiUrl = aiUrl;
   }
 
+  public void updateAiUrl(String filePath) {
+    this.aiUrl = filePath;
+  }
+
+  public void updateAiSize(Long aiSize){
+    this.aiSize = aiSize;
+  }
 }

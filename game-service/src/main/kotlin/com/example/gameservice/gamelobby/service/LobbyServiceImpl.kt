@@ -71,15 +71,15 @@ class LobbyServiceImpl(
 
         var isRoomDeleted = false
         if (room.getCreatedByUserId() == userId) {
-//            val remainingParticipants = gameLobbyParticipantRepository.findByRoomId(roomId)
-//            if (remainingParticipants.isEmpty()) {
+            val remainingParticipants = gameLobbyParticipantRepository.findByRoomId(roomId)
+            if (remainingParticipants.isEmpty()) {
                 gameRoomRepository.delete(room)
                 isRoomDeleted = true
-//            } else {
-//                val newHost = remainingParticipants.sortedBy { it.joinedAt }.first()
-//                room.createdByUserId = newHost.userId
-//                gameRoomRepository.save(room)
-//            }
+            } else {
+                val newHost = remainingParticipants.sortedBy { it.joinedAt }.first()
+                room.setUserId(newHost.userId)
+                gameRoomRepository.save(room)
+            }
         }
 
         if (!isRoomDeleted) {

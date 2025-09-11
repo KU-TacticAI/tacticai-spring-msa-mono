@@ -12,13 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public interface AiService {
 
-  AiResponseDto createAI(Long userId, CreateAiRequestDto requestDto);
+  AiResponseDto createAI(Long userId, CreateAiRequestDto requestDto, MultipartFile file);
 
   AiResponseDto getAIAgentById(Long id, Long userId);
 
   List<AiResponseDto> getAllAI(Long userId);
 
-  AiResponseDto updateAi(Long id, Long userId, UpdateAiRequestDto requestDto);
+  AiResponseDto updateAi(Long id, Long userId, UpdateAiRequestDto requestDto, MultipartFile file);
 
   String deleteAIAgent(Long id, Long userId, DeleteAiRequestDto requestDto);
 

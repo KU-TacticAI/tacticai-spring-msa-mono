@@ -1,10 +1,9 @@
 package com.example.gatewayservice.filter
 
-import com.example.gatewayservice.exception.InvalidInputException
 import com.example.gatewayservice.exception.TokenErrorCode
 import com.example.gatewayservice.util.JWTUtil
-import com.example.gatewayservice.util.TokenSettings
 import io.jsonwebtoken.ExpiredJwtException
+import io.netty.handler.codec.http.HttpHeaderValidationUtil.validateToken
 import org.springframework.cloud.gateway.filter.GatewayFilterChain
 import org.springframework.cloud.gateway.filter.GlobalFilter
 import org.springframework.core.Ordered
@@ -22,75 +21,60 @@ class JWTFilter(
 
     override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> {
         val request = exchange.request
-        val response = exchange.response
-        val uri = request.uri.path
-        val path = exchange.request.uri.path
+        val path = request.uri.path
 
-        if (path.startsWith("/ws") || path.startsWith("/sockjs") || path == "/websocket") {
+        // Skip JWT validation for public endpoints like login, signup, and websockets
+        if (isPublicEndpoint(path)) {
             return chain.filter(exchange)
         }
 
-        if (isLoginRequest(uri) || isSignInRequest(uri)) {
-            return chain.filter(exchange)
+        val authHeader = request.headers.getFirst(HttpHeaders.AUTHORIZATION)
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return unauthorized(exchange, "Authorization header is missing or invalid")
         }
 
-        val accessToken = request.headers.getFirst(HttpHeaders.AUTHORIZATION)
-            ?.removePrefix("Bearer ")
-            ?: return chain.filter(exchange)
+        val token = authHeader.removePrefix("Bearer ").trim()
 
         return try {
-            authenticateUser(accessToken)
-            validateToken(accessToken)
-            chain.filter(exchange)
+            validateToken(token)
+            val userId = jwtUtil.getUserId(token)
+
+            // Create a new request with the X-User-Id header
+            val modifiedRequest = request.mutate()
+                .header("X-User-Id", userId)
+                .build()
+
+            chain.filter(exchange.mutate().request(modifiedRequest).build())
+
         } catch (e: ExpiredJwtException) {
-            val refreshToken = request.cookies.getFirst(TokenSettings.REFRESH_TOKEN_CATEGORY)?.value
-            return try {
-                if (refreshToken != null) {
-                    authenticateUser(refreshToken)
-                    validateToken(refreshToken)
-
-                    // TODO: 필요시 새 토큰 발급 처리 추가
-
-                    chain.filter(exchange)
-                } else {
-                    unauthorized(response, "리프레시 토큰이 없습니다.")
-                }
-            } catch (ex: Exception) {
-                unauthorized(response, "잘못된 리프레시 토큰입니다.")
-            }
+            unauthorized(exchange, "Token has expired")
         } catch (e: Exception) {
-            unauthorized(response, "잘못된 토큰입니다.")
+            unauthorized(exchange, "Invalid token")
         }
     }
 
     override fun getOrder(): Int = -1
 
-    private fun unauthorized(response: org.springframework.http.server.reactive.ServerHttpResponse, message: String): Mono<Void> {
+    private fun unauthorized(exchange: ServerWebExchange, message: String): Mono<Void> {
+        val response = exchange.response
         response.statusCode = HttpStatus.UNAUTHORIZED
-        response.headers.contentType = MediaType.TEXT_PLAIN
-        val buffer = response.bufferFactory().wrap(message.toByteArray(Charsets.UTF_8))
+        response.headers.contentType = MediaType.APPLICATION_JSON
+//        val errorResponse = "{\"error\": \"${TokenErrorCode.NO_AUTHORIZATION.message}\"", \"message\": \"$message\"}"
+        val errorResponse = "{\"error\": \"TokenErrorCode..message\", \"message\": \"$message\"}"
+        val buffer = response.bufferFactory().wrap(errorResponse.toByteArray())
         return response.writeWith(Mono.just(buffer))
     }
 
-    private fun isLoginRequest(uri: String): Boolean {
-        return uri.matches(Regex(".*/login(?:/.*)?$")) || uri.matches(Regex(".*/oauth2(?:/.*)?$"))
-    }
-
-    private fun isSignInRequest(uri: String): Boolean {
-        return uri.matches(Regex(".*/sign-in(?:/.*)?$"))
+    private fun isPublicEndpoint(path: String): Boolean {
+        return path.startsWith("/ws") ||
+               path.startsWith("/api/core/users/sign-in") ||
+               path.startsWith("/api/core/login") ||
+               path.startsWith("/api/core/token/refresh")
     }
 
     private fun validateToken(token: String) {
         jwtUtil.isExpired(token)
         jwtUtil.isIssuer(token)
-        val category = jwtUtil.getCategory(token)
-        if (category != TokenSettings.ACCESS_TOKEN_CATEGORY) {
-            throw InvalidInputException(TokenErrorCode.TOKEN_CATEGORY_MISS_MATCH)
-        }
-    }
-
-    private fun authenticateUser(token: String) {
-        val userId = jwtUtil.getUserId(token).toLong()
-        // TODO: 필요시 사용자 ID를 Request Header에 담아 downstream에 전달
     }
 }
+
