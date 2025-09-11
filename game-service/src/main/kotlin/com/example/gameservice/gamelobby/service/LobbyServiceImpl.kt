@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDateTime
+import reactor.core.publisher.Mono
 
 @Service
 class LobbyServiceImpl(
@@ -42,7 +43,7 @@ class LobbyServiceImpl(
         )
         val savedRoom = gameRoomRepository.save(room)
 
-        val participant = gameLobbyParticipantRepository.save(GameLobbyParticipant(
+        gameLobbyParticipantRepository.save(GameLobbyParticipant(
             joinOrder = 1,
             joinedAt = LocalDateTime.now(),
             userId = userId.toLong(),
@@ -159,7 +160,7 @@ class LobbyServiceImpl(
         participant.selectedAiId = aiId
         val updatedParticipant = gameLobbyParticipantRepository.save(participant)
 
-        val selectedAi = coreClient.getAiUrlById(aiId);
+        val selectedAi = coreClient.getAiUrlById(aiId)
 
         broadcastRoomState(roomId, selectedAi)
         return ResponseLobbyDto.from(updatedParticipant, selectedAi)
@@ -168,7 +169,7 @@ class LobbyServiceImpl(
     override fun startRoom(roomId: Long): RoomResponseDto {
         val room = findByIdOrElseThrow(roomId)
         room.status = GameRoomStatus.IN_PROGRESS
-        val updatedRoom = gameRoomRepository.save(room)
+        gameRoomRepository.save(room)
 
         sendGameRequestToFastApi(room)
 
@@ -189,6 +190,42 @@ class LobbyServiceImpl(
     }
 
     private fun sendGameRequestToFastApi(room: GameRoom) {
+        // 참가자 및 선택된 AI 정보를 수집
+        val participants = gameLobbyParticipantRepository.findByRoomId(room.getId())
+        val playerIds = participants.map { it.userId.toString() }
+
+        val selectedAiIds = participants.mapNotNull { it.selectedAiId }.distinct()
+
+        // AI 정보 조회 및 모델 id/url 정렬
+        val aiDtos = if (selectedAiIds.isNotEmpty()) coreClient.getAiUrlsByIds(selectedAiIds) else emptyList()
+        val aiMap = aiDtos.associateBy { it.aiId }
+
+        val models = selectedAiIds.mapNotNull { id ->
+            aiMap[id]?.aiUrl?.let { url -> Pair(id.toString(), url) }
+        }
+
+        val modelIds = models.map { it.first }
+        val modelUrls = models.map { it.second }
+
+        // FastAPI의 요청 형식과 일치시키기: ai_model_ids, ai_model_urls, player_ids
+        val body = mapOf(
+            "request_id" to java.util.UUID.randomUUID().toString(),
+            "timestamp" to java.time.Instant.now().toString(),
+            "game_id" to room.getId().toString(),
+            "game_type" to room.getGameType(),
+            "ai_model_ids" to modelIds,
+            "ai_model_urls" to modelUrls,
+            "player_ids" to playerIds
+        )
+
+        // FastAPI로 비동기 전송 (실패 시 무시)
+        webClient.post()
+            .uri("/game-request")
+            .bodyValue(body)
+            .retrieve()
+            .bodyToMono(Void::class.java)
+            .onErrorResume { Mono.empty() }
+            .subscribe()
     }
 
     private fun findByIdOrElseThrow(roomId: Long): GameRoom {
