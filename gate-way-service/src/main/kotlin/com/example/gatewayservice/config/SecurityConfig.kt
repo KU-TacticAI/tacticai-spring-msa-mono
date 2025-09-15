@@ -28,9 +28,6 @@ class SecurityConfig(
             allowedOriginPatterns = listOf(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
-                "https://*.playcation.store"
-                // 필요시 환경변수에서 읽은 운영 프론트 URL도 추가
-                // System.getenv("FRONT_URL")?.let { addAllowedOriginPattern(it) }
             )
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")

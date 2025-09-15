@@ -45,8 +45,6 @@ public class SecurityConfig {
   private final AuthenticationConfiguration authenticationConfiguration;
   private final ApplicationContext applicationContext;
   private final TokenService tokenService;
-//  private final SuccessHandler successHandler;
-  //  private final FailureHandler failureHandler;
   private final JWTUtil jwtUtil;
 
   @Value("${spring.profiles.front_url}")
@@ -83,68 +81,10 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-//  @Bean
-//  public CorsConfigurationSource corsConfigurationSource() {
-//    CorsConfiguration config = new CorsConfiguration();
-//    config.setAllowCredentials(true);
-//    config.setAllowedOriginPatterns(List.of(
-//        "http://localhost:3000",
-//        "http://127.0.0.1:3000",
-//        "http://localhost:5173",
-//        "http://127.0.0.1:5173",
-//        "https://playcation.store",
-//        "https://*.playcation.store"
-//    ));
-//    config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-//    config.setAllowedHeaders(List.of("*"));
-//    // 프론트에서 읽을 필요 있는 헤더만 노출
-//    config.setExposedHeaders(List.of("Authorization","Location","Link","X-Total-Count","Set-Cookie"));
-//    config.setMaxAge(3600L);
-//
-//    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//    source.registerCorsConfiguration("/**", config);
-//    return source;
-//  }
-
-//  @Bean
-//  public FilterRegistrationBean<CorsFilter> corsFilter(CorsConfigurationSource source) {
-//    CorsFilter corsFilter = new CorsFilter(source);
-//    FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(corsFilter);
-//    bean.setOrder(0); // 보안 필터보다 먼저 실행되도록 최우선
-//    return bean;
-//  }
-
   @Bean
   public SecurityFilterChain filterChain(
       HttpSecurity http,
       UserRepository userRepository) throws Exception {
-//    OAuth2Service oAuth2Service = applicationContext.getBean(OAuth2Service.class);
-
-//    http.cors(cors -> cors.configurationSource(request -> {
-//      CorsConfiguration config = new CorsConfiguration();
-//      config.setAllowCredentials(true);
-//
-//      // 여러 환경 허용 (정확한 문자열 또는 와일드카드 패턴)
-//      config.setAllowedOriginPatterns(List.of(
-//          frontUrl,                          // 예: https://playcation.store (환경변수/프로퍼티에서 주입)
-//          "http://localhost:3000",
-//          "http://127.0.0.1:3000",
-//          "https://*.playcation.store"
-//      ));
-//
-//      config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-//      config.setAllowedHeaders(List.of("*"));
-//
-//      // 프론트에서 읽을 헤더 노출 (토큰/쿠키/페이지네이션 등 필요한 것만)
-//      config.setExposedHeaders(List.of("Authorization", "Location", "Link", "X-Total-Count", "Set-Cookie"));
-//
-//      // Preflight 캐시
-//      config.setMaxAge(3600L);
-//      return config;
-//    }));
-
-//    http
-//        .cors(withDefaults());   // 또는 .cors(c -> c.configurationSource(corsConfigurationSource()))
 
     http.cors(AbstractHttpConfigurer::disable);
 
@@ -156,13 +96,6 @@ public class SecurityConfig {
     http.httpBasic(AbstractHttpConfigurer::disable);
 
     http.headers(headers -> headers.frameOptions(FrameOptionsConfig::disable));
-
-    // oauth2
-//    http
-//        .oauth2Login((oauth2) -> oauth2
-//        .userInfoEndpoint((userInfoEndpointConfig) ->
-//            userInfoEndpointConfig.userService(oAuth2Service))
-//        .successHandler(successHandler));
 
     http.authorizeHttpRequests((auth) -> auth
         .requestMatchers(
