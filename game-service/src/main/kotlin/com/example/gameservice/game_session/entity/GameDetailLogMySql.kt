@@ -4,7 +4,7 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "GameDetailLog")
-data class GameDetailLog(
+data class GameDetailLogMySql(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long,

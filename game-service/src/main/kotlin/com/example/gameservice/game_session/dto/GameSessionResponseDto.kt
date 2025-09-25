@@ -1,6 +1,6 @@
 package com.example.gameservice.game_session.dto
 
-import com.example.gameservice.game_session.entity.GameDetailLog
+import com.example.gameservice.game_session.entity.GameDetailLogMySql
 
 data class GameSessionResponseDto(
     val id: Long,
@@ -11,7 +11,7 @@ data class GameSessionResponseDto(
     val moveId: Long?
 ) {
     companion object {
-        fun from(entity: GameDetailLog): GameSessionResponseDto {
+        fun from(entity: GameDetailLogMySql): GameSessionResponseDto {
             return GameSessionResponseDto(
                 id = entity.id,
                 responseTimeMs = entity.responseTimeMs,

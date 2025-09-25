@@ -7,17 +7,15 @@ import com.example.gameservice.game_session.dto.GameProgressDto
 import com.example.gameservice.game_session.dto.GameRequestDto
 import com.example.gameservice.game_session.dto.GameSessionResponseDto
 import com.example.gameservice.game_session.entity.GameResult
-import com.example.gameservice.game_session.repository.GameDetailLogRepository
+import com.example.gameservice.game_session.repository.GameDetailLogMySqlRepository
 import com.example.gameservice.game_session.repository.GameResultRepository
-import com.example.gameservice.game_session.repository.GameSessionRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class GameSessionServiceImpl(
-    private val gameSessionRepository: GameSessionRepository,
-    private val gameDetailLogRepository: GameDetailLogRepository,
+    private val gameDetailLogMySqlRepository: GameDetailLogMySqlRepository,
     private val webClient: WebClient,
     @Value("\${fastapi.base-url}")
     private val fastapiBaseUrl: String,
@@ -31,7 +29,7 @@ class GameSessionServiceImpl(
      * @param id GameSession ID
      */
     override fun getSnapShot(roomId: Long, id: Long): GameSessionResponseDto? {
-        val snapshot = gameDetailLogRepository
+        val snapshot = gameDetailLogMySqlRepository
             .findTopByGameSessionIdOrderByIdDesc(id)
             ?: return null
 

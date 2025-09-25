@@ -1,4 +1,4 @@
-package com.example.coreservice.ai.entity;
+package com.example.coreservice.ai_statistics.entity;
 
 import com.example.commonmodule.base_entity.BaseEntity;
 import jakarta.persistence.Entity;
@@ -32,10 +32,10 @@ public class AiStatistics extends BaseEntity {
 
   private int draws;
 
-  private BigDecimal avg_turns;
+  private double avg_turns;
 
   private int avgResponseTimeMs;
 
-  private BigDecimal winRate;
+  private double winRate;
 
 }
