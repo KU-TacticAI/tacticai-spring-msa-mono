@@ -6,6 +6,7 @@ import lombok.Builder
 import lombok.Getter
 import lombok.NoArgsConstructor
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 import java.util.*
@@ -18,6 +19,7 @@ import java.util.*
 data class GameDetailLog(
 
     @Id
+    @Indexed
     val id: UUID,
 
     @Field("response_time_ms")
@@ -32,9 +34,6 @@ data class GameDetailLog(
 
     @Field("move_data")
     val moveData: String?,
-
-    @Field("execution_time_ms")
-    val executionTimeMs: Int?,
 
     // ENUM 타입은 Kotlin의 enum class로 매핑하여 타입 안정성을 높이는 것이 좋습니다.
     @Field("status")

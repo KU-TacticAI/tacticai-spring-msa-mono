@@ -16,11 +16,5 @@ interface GameDetailMongoRepository : MongoRepository<GameDetailLog, UUID> {
      */
     fun findByGameInfoId(gameInfoId: UUID): List<GameDetailLog>
 
-    /**
-     * 특정 상태(status)를 가진 모든 상세 로그를 조회합니다.
-     * @param status 조회할 게임 상태 (GameStatus Enum)
-     * @return GameDetailLog 리스트
-     */
-    fun findByStatus(status: GameStatus): List<GameDetailLog>
-
+    fun findByGameInfoIdIn(gameInfoIdList: List<UUID>): List<GameDetailLog>
 }
