@@ -5,9 +5,10 @@ WORKDIR /app
 
 # 모노레포의 모든 소스코드 복사
 WORKDIR /app
-COPY gate-way-service ./gate-way-service
-COPY build.gradle settings.gradle gradlew gradlew.bat ./
-COPY gradle ./gradle
+#COPY gate-way-service ./gate-way-service
+#COPY build.gradle settings.gradle gradlew gradlew.bat ./
+#COPY gradle ./gradle
+COPY . .
 
 # Gateway Service만 빌드합니다.
 RUN ./gradlew :gate-way-service:bootJar -x test
