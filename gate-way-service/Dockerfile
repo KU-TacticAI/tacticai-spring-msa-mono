@@ -4,9 +4,6 @@ FROM gradle:8.4.0-jdk17 AS builder
 WORKDIR /app
 
 # 모노레포의 모든 소스코드 복사
-#COPY gate-way-service ./gate-way-service
-#COPY build.gradle settings.gradle gradlew gradlew.bat ./
-#COPY gradle ./gradle
 COPY . .
 
 RUN echo "--- Start File List ---" && ls -laR && echo "--- End File List ---"

@@ -4,11 +4,9 @@ FROM gradle:8.4.0-jdk17 AS builder
 WORKDIR /app
 
 # 모노레포의 모든 소스코드 복사 (Core, Game, Gateway, Common 포함)
-WORKDIR /app
-COPY gateway-service ./gateway-service
-COPY common ./common
-COPY build.gradle settings.gradle gradlew gradlew.bat ./
-COPY gradle ./gradle
+COPY . .
+
+RUN chmod +x ./gradlew
 
 # Core Service만 빌드합니다. (Gradle이 Common 모듈 종속성을 자동으로 해결)
 RUN ./gradlew :core-service:bootJar -x test

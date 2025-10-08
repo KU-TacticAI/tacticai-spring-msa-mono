@@ -4,11 +4,9 @@ FROM gradle:8.4.0-jdk17 AS builder
 WORKDIR /app
 
 # 모노레포의 모든 소스코드 복사
-WORKDIR /app
-COPY gateway-service ./gateway-service
-COPY common ./common
-COPY build.gradle settings.gradle gradlew gradlew.bat ./
-COPY gradle ./gradle
+COPY . .
+
+RUN chmod +x ./gradlew
 
 # Game Service만 빌드합니다.
 RUN ./gradlew :game-service:bootJar -x test
