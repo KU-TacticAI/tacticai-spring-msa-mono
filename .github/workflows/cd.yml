@@ -2,7 +2,7 @@ name: Deploy MSA to EC2 via Docker Hub
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 env:
   DOCKER_REGISTRY: your_dockerhub_username   # 예: seojun123
