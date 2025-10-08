@@ -61,6 +61,7 @@ jobs:
           host: ${{ secrets.AWS_EC2_HOST }}
           username: ${{ secrets.AWS_EC2_USERNAME }}
           key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          envs: DOCKER_REGISTRY,IMAGE_TAG
           script: |
             cd ~/tacticai-spring-msa-mono
             docker-compose pull
