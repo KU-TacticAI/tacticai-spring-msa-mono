@@ -20,6 +20,7 @@ data class GameResultResponseDto(
     val responseTimeMs: Int,
     val turnCount: Int,
     val moveData: String?, // move_data
+    val isWin: Boolean
 ) {
     companion object {
         fun toDto(gameInfo: GameInfo, userId: Long, gameDetailLog: List<GameDetailLog>): GameResultResponseDto {
@@ -35,6 +36,8 @@ data class GameResultResponseDto(
             // 3. 가장 마지막 턴의 moveData를 가져옵니다. (단순화를 위해 마지막 로그 사용)
             val lastMoveData = gameDetailLog.maxByOrNull { it.turnCount ?: 0 }?.moveData
 
+            val isWin = gameInfo.aiIds?.get(userIndex) == gameInfo.winnerAiId;
+
             // 4. DTO 생성 및 반환
             return GameResultResponseDto(
                 id = gameInfo.id,
@@ -45,7 +48,8 @@ data class GameResultResponseDto(
                 winnerAiId = gameInfo.winnerAiId,
                 responseTimeMs = avgResponseTime, // 평균 응답 시간
                 turnCount = maxTurnCount, // 최종 턴 수
-                moveData = lastMoveData // 최종 무브 데이터
+                moveData = lastMoveData, // 최종 무브 데이터
+                isWin = isWin
             )
         }
     }
