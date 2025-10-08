@@ -9,6 +9,8 @@ WORKDIR /app
 #COPY gradle ./gradle
 COPY . .
 
+RUN echo "--- Start File List ---" && ls -laR && echo "--- End File List ---"
+
 RUN chmod +x ./gradlew
 
 # Gateway Service만 빌드합니다.
