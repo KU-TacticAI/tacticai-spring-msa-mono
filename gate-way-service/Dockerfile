@@ -14,6 +14,8 @@ RUN chmod +x ./gradlew
 
 
 # Gateway Service만 빌드합니다.
+WORKDIR /app/gate-way-service
+
 RUN ./gradlew :gate-way-service:bootJar -x test
 
 # Stage 2: 실행 환경 (가벼운 OpenJDK 사용)
