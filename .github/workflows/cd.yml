@@ -64,6 +64,11 @@ jobs:
           envs: DOCKER_REGISTRY,IMAGE_TAG
           script: |
             cd ~/tacticai-spring-msa-mono
+            
+            echo "${{ secrets.GATEWAY_ENV }}" > gateway.env
+            echo "${{ secrets.CORE_ENV }}" > core.env
+            echo "${{ secrets.GAME_ENV }}" > game.env
+            
             docker-compose pull
             docker-compose down
             docker-compose up -d
