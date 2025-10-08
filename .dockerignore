@@ -3,8 +3,8 @@
 **/.gradle
 **/out
 **/*.iml
-.gradle/
-!.gradle/wrapper/gradle-wrapper.jar
+#.gradle/
+#!.gradle/wrapper/gradle-wrapper.jar
 .git/
 .gitignore
 README.md
