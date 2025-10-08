@@ -10,6 +10,8 @@ WORKDIR /app
 #COPY gradle ./gradle
 COPY . .
 
+RUN chmod +x ./gradlew
+
 # Gateway Service만 빌드합니다.
 RUN ./gradlew :gate-way-service:bootJar -x test
 
