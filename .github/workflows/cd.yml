@@ -25,14 +25,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 3️⃣ gateway-service 이미지 빌드 및 푸시
-      - name: Build & Push gateway-service
+      - name: Build & Push gate-way-service
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: gateway-service/Dockerfile
+          file: gate-way-service/Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKER_REGISTRY }}/gateway-service:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKER_REGISTRY }}/gate-way-service:${{ env.IMAGE_TAG }}
 
       # 4️⃣ core-service 이미지 빌드 및 푸시
       - name: Build & Push core-service
