@@ -4,6 +4,7 @@
 **/out
 **/*.iml
 .gradle/
+!.gradle/wrapper/gradle-wrapper.jar
 .git/
 .gitignore
 README.md
