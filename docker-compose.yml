@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # 1. Gateway Service
   gateway-service:
-    image: ${DOCKER_REGISTRY}/gateway-service:${IMAGE_TAG}
+    image: ${DOCKER_REGISTRY}/gate-way-service:${IMAGE_TAG}
     container_name: gate-way-service
     restart: always
     # 외부 트래픽은 Gateway로만 들어오도록 80/443 포트만 오픈
