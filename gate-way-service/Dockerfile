@@ -4,7 +4,6 @@ FROM gradle:8.4.0-jdk17 AS builder
 WORKDIR /app
 
 # 모노레포의 모든 소스코드 복사
-WORKDIR /app
 #COPY gate-way-service ./gate-way-service
 #COPY build.gradle settings.gradle gradlew gradlew.bat ./
 #COPY gradle ./gradle
@@ -15,7 +14,7 @@ RUN chmod +x ./gradlew
 
 # Gateway Service만 빌드합니다.
 WORKDIR /app/gate-way-service
-
+WORKDIR /app
 RUN ./gradlew :gate-way-service:bootJar -x test
 
 # Stage 2: 실행 환경 (가벼운 OpenJDK 사용)
