@@ -9,6 +9,7 @@ services:
     # 외부 트래픽은 Gateway로만 들어오도록 80/443 포트만 오픈
     ports:
       - "80:8080"  # HTTP
+      - "8080:8080"
       # - "443:8443" # HTTPS (필요 시)
 
   # 2. Core Service
@@ -16,6 +17,8 @@ services:
     image: ${DOCKER_REGISTRY}/core-service:${IMAGE_TAG}
     container_name: core-service
     restart: always
+    ports:
+      - "8081:8080"
     # Gateway 내부에서 접근하므로 외부 포트 바인딩 생략 (보안 및 단순화)
 
   # 3. Game Service
@@ -23,4 +26,6 @@ services:
     image: ${DOCKER_REGISTRY}/game-service:${IMAGE_TAG}
     container_name: game-service
     restart: always
+    ports:
+      - "8082:8080"
     # Gateway 내부에서 접근하므로 외부 포트 바인딩 생략

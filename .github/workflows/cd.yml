@@ -1,77 +1,68 @@
-name: Continuous Deployment (Monorepo to Single EC2)
+name: Deploy MSA to EC2 via Docker Hub
 
 on:
   push:
-    branches:
-      - develop # Git Flow의 develop 브랜치 대상
+    branches: [ main ]
 
-# 파일 경로가 변경된 서비스만 선택적으로 빌드/배포합니다.
+env:
+  DOCKER_REGISTRY: your_dockerhub_username   # 예: seojun123
+  IMAGE_TAG: latest
+
 jobs:
-  # 1. Core Service CI/CD
-  core_cd:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      SERVICE_NAME: core-service
-    # core-service 또는 common 경로의 파일이 변경되었을 때만 실행
-    # (주의: paths-ignore는 develop 브랜치에 직접 푸시할 때만 동작하므로,
-    #  pull_request 또는 커밋 비교 액션을 사용하는 것이 더 안전합니다. 여기서는 간결한 paths 필터를 사용)
-    paths:
-      - 'core-service/**'
-      - 'common/**'
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # 1️⃣ 소스코드 체크아웃
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Build, Push Docker Image
-        # 실제 Docker Build 및 Push 명령 실행
-        run: |
-          # DOCKER_HUB_USERNAME 및 Secrets를 활용하여 레지스트리 로그인
-          echo "Building ${SERVICE_NAME} image..."
-          docker build -t your_registry/$(echo $SERVICE_NAME):${{ github.sha }} -f $SERVICE_NAME/Dockerfile .
-          docker push your_registry/$(echo $SERVICE_NAME):${{ github.sha }}
-
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.1
+      # 2️⃣ Docker 로그인
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user # EC2 사용자명
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3️⃣ gateway-service 이미지 빌드 및 푸시
+      - name: Build & Push gateway-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: gateway-service/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/gateway-service:${{ env.IMAGE_TAG }}
+
+      # 4️⃣ core-service 이미지 빌드 및 푸시
+      - name: Build & Push core-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: core-service/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/core-service:${{ env.IMAGE_TAG }}
+
+      # 5️⃣ game-service 이미지 빌드 및 푸시
+      - name: Build & Push game-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: game-service/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/game-service:${{ env.IMAGE_TAG }}
+
+      # 6️⃣ EC2 서버에 SSH 접속해서 최신 이미지 pull 및 compose 재시작
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USERNAME }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
           script: |
-            # EC2 환경 변수 설정
-            export DOCKER_REGISTRY="your_registry"
-            export IMAGE_TAG="${{ github.sha }}"
-            
-            # docker-compose.yml 파일이 EC2에 존재해야 함
-            echo "Running docker compose pull and up for ${{ env.SERVICE_NAME }}"
-            docker compose pull
-            docker compose up -d --no-deps ${{ env.SERVICE_NAME }} # 변경된 컨테이너만 재시작
-
-  # 2. Game Service CI/CD (Core와 동일한 구조)
-  game_cd:
-    runs-on: ubuntu-latest
-    env:
-      SERVICE_NAME: game-service
-    paths:
-      - 'game-service/**'
-      - 'common/**' # common 변경 시 Game도 재배포
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build, Push Docker Image
-        # ... (Core Service와 동일한 Build & Push 로직)
-      - name: Deploy to EC2
-        # ... (Core Service와 동일한 Deploy 로직)
-
-  # 3. Gateway Service CI/CD
-  gateway_cd:
-    runs-on: ubuntu-latest
-    env:
-      SERVICE_NAME: gateway-service
-    paths:
-      - 'gateway-service/**'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build, Push Docker Image
-        # ...
-      - name: Deploy to EC2
-        # ...
+            cd ~/tacticai-spring-msa-mono
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d

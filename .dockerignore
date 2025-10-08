@@ -1,0 +1,9 @@
+# .dockerignore
+**/build
+**/.gradle
+**/out
+**/*.iml
+.gradle/
+.git/
+.gitignore
+README.md
