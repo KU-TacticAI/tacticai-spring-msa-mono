@@ -64,7 +64,7 @@ jobs:
           envs: DOCKER_REGISTRY,IMAGE_TAG
           script: |
             cd ~/tacticai-spring-msa-mono
-            
+            git pull
             echo "${{ secrets.GATEWAY_ENV }}" > gateway.env
             echo "${{ secrets.CORE_ENV }}" > core.env
             echo "${{ secrets.GAME_ENV }}" > game.env
