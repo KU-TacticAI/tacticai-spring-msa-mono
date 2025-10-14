@@ -47,9 +47,6 @@ public class SecurityConfig {
   private final TokenService tokenService;
   private final JWTUtil jwtUtil;
 
-  @Value("${spring.profiles.front_url}")
-  private String frontUrl;
-
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
       throws Exception {
