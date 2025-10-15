@@ -12,7 +12,9 @@ class RouteConfig(
     @Value("\${core.service.url}")
     private val coreServiceUrl: String,
     @Value("\${game.service.url}")
-    private val gameServiceUrl: String
+    private val gameServiceUrl: String,
+    @Value("\${socket.service.url}")
+    private val socketServiceUrl: String
 ) {
 
     @Bean
@@ -34,7 +36,7 @@ class RouteConfig(
                         f.dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
                             .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST")
                     }
-                    .uri(gameServiceUrl)
+                    .uri(socketServiceUrl)
             }
             .build()
     }
