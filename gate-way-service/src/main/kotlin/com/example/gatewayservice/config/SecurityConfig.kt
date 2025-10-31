@@ -26,8 +26,9 @@ class SecurityConfig(
             allowCredentials = true
             // 여러 환경/도메인 허용
             allowedOriginPatterns = listOf(
-                "http://localhost:3000",
-                "http://127.0.0.1:3000",
+//                "http://localhost:3000",
+//                "http://127.0.0.1:3000",
+                  "https://api.tacticai.site"
             )
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")

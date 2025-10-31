@@ -23,7 +23,6 @@ class JWTFilter(
         val request = exchange.request
         val path = request.uri.path
 
-        // Skip JWT validation for public endpoints like login, signup, and websockets
         if (isPublicEndpoint(path)) {
             return chain.filter(exchange)
         }
@@ -39,7 +38,6 @@ class JWTFilter(
             validateToken(token)
             val userId = jwtUtil.getUserId(token)
 
-            // Create a new request with the X-User-Id header
             val modifiedRequest = request.mutate()
                 .header("X-User-Id", userId)
                 .build()
@@ -59,7 +57,6 @@ class JWTFilter(
         val response = exchange.response
         response.statusCode = HttpStatus.UNAUTHORIZED
         response.headers.contentType = MediaType.APPLICATION_JSON
-//        val errorResponse = "{\"error\": \"${TokenErrorCode.NO_AUTHORIZATION.message}\"", \"message\": \"$message\"}"
         val errorResponse = "{\"error\": \"TokenErrorCode..message\", \"message\": \"$message\"}"
         val buffer = response.bufferFactory().wrap(errorResponse.toByteArray())
         return response.writeWith(Mono.just(buffer))
@@ -77,4 +74,3 @@ class JWTFilter(
         jwtUtil.isIssuer(token)
     }
 }
-
