@@ -66,7 +66,8 @@ class JWTFilter(
         return path.startsWith("/ws") ||
                path.startsWith("/api/core/users/sign-in") ||
                path.startsWith("/api/core/login") ||
-               path.startsWith("/api/core/token/refresh")
+               path.startsWith("/api/core/token/refresh") ||
+               path.startsWith("/health")
     }
 
     private fun validateToken(token: String) {

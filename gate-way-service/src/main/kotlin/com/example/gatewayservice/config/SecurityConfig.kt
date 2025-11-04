@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.web.cors.CorsConfiguration
@@ -16,6 +17,7 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableReactiveMethodSecurity
+@EnableWebFluxSecurity
 class SecurityConfig(
     private val jwtFilter: JWTFilter
 ) {
@@ -26,9 +28,9 @@ class SecurityConfig(
             allowCredentials = true
             // 여러 환경/도메인 허용
             allowedOriginPatterns = listOf(
-//                "http://localhost:3000",
-//                "http://127.0.0.1:3000",
-                  "https://api.tacticai.site"
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "https://api.tacticai.site"
             )
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
@@ -54,7 +56,7 @@ class SecurityConfig(
                     .pathMatchers(
                         "/ws/**",        // SockJS 기본
                         "/websocket",    // 직접 ws 업그레이드 경로
-                        "/sockjs/**"     // 환경에 따라 생성되는 폴백 경로
+                        "/sockjs/**",     // 환경에 따라 생성되는 폴백 경로
                     ).permitAll()
                     .pathMatchers(
                         "/api/**",
@@ -70,7 +72,8 @@ class SecurityConfig(
                         "/swagger-ui/**",
                         "/v3/**",
                         "/users/sign-in",
-                        "/api/core/users/sign-in"
+                        "/api/core/users/sign-in",
+                        "/health"
                     ).permitAll()
                     .anyExchange().authenticated()
             }
