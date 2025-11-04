@@ -14,7 +14,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew :gate-way-service:bootJar -x test
 
 # Stage 2: 실행 환경 (가벼운 OpenJDK 사용)
-FROM openjdk:17-slim
+FROM openjdk:17.0.1-jdk-slim
 WORKDIR /app
 
 # JAR 파일을 복사하고 이름을 app.jar로 변경
