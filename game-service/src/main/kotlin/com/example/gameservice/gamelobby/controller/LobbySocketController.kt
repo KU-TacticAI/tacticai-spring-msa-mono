@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 data class JoinRequestDto(
     val roomId: String,
     val userId: Long,
-    val playerName: String
+    val playerName: String?
 )
 
 data class ReadyRequestDto(
