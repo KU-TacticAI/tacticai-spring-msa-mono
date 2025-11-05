@@ -79,7 +79,7 @@ class LobbySocketController(
             println("⚠️ joinRoom 실패 (방 꽉 참): ${e.message}")
 
             // 👈 [필수 수정] 롤백: 방에 못 들어갔으므로 세션 등록 취소
-            sessionInfoMap.remove(sessionId)
+//            sessionInfoMap.remove(sessionId)
             println("❌ Session registration rolled back (Room Full): $sessionId")
 
         } catch (e: Exception) { // 기타 모든 예외
