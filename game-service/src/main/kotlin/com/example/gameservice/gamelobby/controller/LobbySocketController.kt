@@ -47,18 +47,30 @@ class LobbySocketController(
     ) {
         val sessionId = headerAccessor.sessionId ?: return
         val userId = joinRequest.userId
+        var updatedRoom: Any? = null
 
-        // 1. 방 정보 확인 및 입장
-        val room = lobbyService.findRoomById(roomId.toLong()) ?: return
-        if (room.getHostUserId() != joinRequest.userId.toLong()) {
-            lobbyService.enterRoom(roomId.toLong(), joinRequest.userId.toLong())
+        try {
+            // 1. 방 정보 확인 및 입장
+            val room = lobbyService.findRoomById(roomId.toLong()) ?: return
+            if (room.getHostUserId() != joinRequest.userId.toLong()) {
+                lobbyService.enterRoom(roomId.toLong(), joinRequest.userId.toLong())
+            }
+
+            // [수정] 성공한 경우에만 세션을 등록
+            sessionInfoMap[sessionId] = Pair(roomId, userId)
+            println("✅ Session registered: $sessionId -> Room: $roomId, User: $userId")
+
+            // 2. 브로커로 현재 참가자 목록 전송
+            updatedRoom = lobbyService.findRoomById(roomId.toLong())
+
+        } catch (e: IllegalStateException) { // 👈 [추가] "방 꽉 참" 예외 잡기
+            println("⚠️ joinRoom 실패 (방 꽉 참): ${e.message}")
+            // (선택) 방이 꽉 찼다고 요청한 클라이언트에게만 에러 메시지 전송
+            // messagingTemplate.convertAndSendToUser(headerAccessor.user!!.name, "/queue/errors", e.message)
+        } catch (e: Exception) { // 👈 [추가] 기타 모든 예외 잡기
+            println("❌ joinRoom 중 알 수 없는 오류: ${e.message}")
         }
 
-        sessionInfoMap[sessionId] = Pair(roomId, userId)
-        println("✅ Session registered: $sessionId -> Room: $roomId, User: $userId")
-
-        // 2. 브로커로 현재 참가자 목록 전송
-        val updatedRoom = lobbyService.findRoomById(roomId.toLong())
         if (updatedRoom != null) {
             messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
         }
