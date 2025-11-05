@@ -10,6 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor
 import org.springframework.stereotype.Controller
 import org.springframework.web.socket.messaging.SessionDisconnectEvent
+import java.util.concurrent.ConcurrentHashMap
 
 data class JoinRequestDto(
     val roomId: String,
@@ -36,6 +37,8 @@ class LobbySocketController(
     private val messagingTemplate: SimpMessagingTemplate
 ) {
 
+    private val sessionInfoMap = ConcurrentHashMap<String, Pair<String, Long>>()
+
     @MessageMapping("game.room.{roomId}.join")
     fun joinRoom(
         @DestinationVariable roomId: String,
@@ -43,12 +46,16 @@ class LobbySocketController(
         headerAccessor: SimpMessageHeaderAccessor
     ) {
         val sessionId = headerAccessor.sessionId ?: return
+        val userId = joinRequest.userId
 
         // 1. 방 정보 확인 및 입장
         val room = lobbyService.findRoomById(roomId.toLong()) ?: return
         if (room.getHostUserId() != joinRequest.userId.toLong()) {
             lobbyService.enterRoom(roomId.toLong(), joinRequest.userId.toLong())
         }
+
+        sessionInfoMap[sessionId] = Pair(roomId, userId)
+        println("✅ Session registered: $sessionId -> Room: $roomId, User: $userId")
 
         // 2. 브로커로 현재 참가자 목록 전송
         val updatedRoom = lobbyService.findRoomById(roomId.toLong())
@@ -102,8 +109,15 @@ class LobbySocketController(
     @MessageMapping("game.room.{roomId}.leave")
     fun leaveRoom(
         @DestinationVariable roomId: String,
-        @Payload request: LeaveRequestDto
+        @Payload request: LeaveRequestDto,
+        headerAccessor: SimpMessageHeaderAccessor
     ) {
+
+        headerAccessor.sessionId?.let {
+            sessionInfoMap.remove(it)
+            println("👋 Session manually removed: $it")
+        }
+
         try {
             lobbyService.leaveRoom(roomId.toLong(), request.userId.toLong())
         } catch (e: Exception) {
@@ -121,7 +135,26 @@ class LobbySocketController(
         val headerAccessor = StompHeaderAccessor.wrap(event.message)
         val sessionId = headerAccessor.sessionId ?: return
 
-        // 예: 세션이 사라졌을 때 유저 퇴장 처리 (선택적)
-        println("⚠️ WebSocket disconnected: $sessionId")
+        val sessionInfo = sessionInfoMap.remove(sessionId)
+
+        if (sessionInfo != null) {
+            val (roomId, userId) = sessionInfo
+            println("🚨 WebSocket disconnected: $sessionId. User $userId leaving room $roomId")
+
+            try {
+                lobbyService.leaveRoom(roomId.toLong(), userId)
+
+                val updatedRoom = lobbyService.findRoomById(roomId.toLong())
+                if (updatedRoom != null) {
+                    messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+                }
+
+            } catch (e: Exception) {
+                println("⚠️ Disconnect leaveRoom 오류: ${e.message}")
+            }
+        } else {
+            // 맵에 없는 세션 (예: 방에 join하기 전 로비에서만 있다가 나간 경우)
+            println("⚠️ WebSocket disconnected: $sessionId (No room/user mapping found, likely lobby user)")
+        }
     }
 }
