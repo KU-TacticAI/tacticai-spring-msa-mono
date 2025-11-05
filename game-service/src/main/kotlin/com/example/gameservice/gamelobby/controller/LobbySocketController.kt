@@ -49,24 +49,44 @@ class LobbySocketController(
         val userId = joinRequest.userId
         var updatedRoom: Any? = null
 
+        // 1. 세션을 먼저 등록 (레이스 컨디션 방지)
         sessionInfoMap[sessionId] = Pair(roomId, userId)
         println("✅ Session registered: $sessionId -> Room: $roomId, User: $userId")
 
         try {
-            // 1. 방 정보 확인 및 입장
-            val room = lobbyService.findRoomById(roomId.toLong()) ?: return
-            if (room.getHostUserId() != joinRequest.userId.toLong()) {
-                lobbyService.enterRoom(roomId.toLong(), joinRequest.userId.toLong())
+            // 2. 방 정보 확인
+            val room = lobbyService.findRoomById(roomId.toLong())
+            if (room == null) {
+                println("⚠️ joinRoom: Room not found (ID: $roomId). (Race condition occurred, but session is registered)")
+                // 방이 없어도 Disconnect 리스너가 leaveRoom을 호출할 것이므로,
+                // leaveRoom이 null을 처리할 수 있어야 함. (이 부분은 아래 DisconnectListener에서 처리)
+                return
             }
 
-            // 2. 브로커로 현재 참가자 목록 전송
+            // 3. 호스트가 아닌 경우에만 입장 시도
+            if (room.getHostUserId() != joinRequest.userId.toLong()) {
+                println("ℹ️ Entering room as guest...")
+                lobbyService.enterRoom(roomId.toLong(), joinRequest.userId.toLong())
+            } else {
+                println("ℹ️ Joining as host.")
+            }
+
+            // 4. 성공 시, 브로커로 현재 참가자 목록 전송
             updatedRoom = lobbyService.findRoomById(roomId.toLong())
 
-        } catch (e: IllegalStateException) { // 👈 [추가] "방 꽉 참" 예외 잡기
+        } catch (e: IllegalStateException) { // "방 꽉 참" 예외
             println("⚠️ joinRoom 실패 (방 꽉 참): ${e.message}")
-            // messagingTemplate.convertAndSendToUser(headerAccessor.user!!.name, "/queue/errors", e.message)
-        } catch (e: Exception) { // 👈 [추가] 기타 모든 예외 잡기
+
+            // 👈 [필수 수정] 롤백: 방에 못 들어갔으므로 세션 등록 취소
+            sessionInfoMap.remove(sessionId)
+            println("❌ Session registration rolled back (Room Full): $sessionId")
+
+        } catch (e: Exception) { // 기타 모든 예외
             println("❌ joinRoom 중 알 수 없는 오류: ${e.message}")
+
+            // 👈 [필수 수정] 롤백: 알 수 없는 오류로 실패 시 세션 등록 취소
+            sessionInfoMap.remove(sessionId)
+            println("❌ Session registration rolled back (Unknown Error): $sessionId")
         }
 
         if (updatedRoom != null) {
