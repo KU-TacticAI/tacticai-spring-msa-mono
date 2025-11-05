@@ -45,6 +45,7 @@ class LobbySocketController(
         @Payload joinRequest: JoinRequestDto,
         headerAccessor: SimpMessageHeaderAccessor
     ) {
+        println("⚠⚠ joinRoom 시작~~~~~~~~~~~~~~~~~~~")
         val sessionId = headerAccessor.sessionId ?: return
         val userId = joinRequest.userId
         var updatedRoom: Any? = null
