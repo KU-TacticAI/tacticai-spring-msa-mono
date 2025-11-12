@@ -20,7 +20,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         // 웹소켓 연결을 위한 엔드포인트 설정
         // 클라이언트는 /ws 주소로 STOMP 연결을 시도
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/api/game/ws")
 //            .setAllowedOrigins(
 //                "https://tacticai.site",
 //                "http://localhost:3000")
