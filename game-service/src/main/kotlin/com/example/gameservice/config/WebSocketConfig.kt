@@ -30,14 +30,5 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
             .withSockJS()  // SockJS를 사용하여 웹소켓을 지원하지 않는 브라우저에서도 통신 가능하도록 함
             .setWebSocketEnabled(true)
             .setHeartbeatTime(25000)
-
-        // Native WebSocket endpoint (SockJS 없이)
-        registry.addEndpoint("/api/game/ws")
-            .setAllowedOriginPatterns(
-                "https://tacticai.site",
-                "https://api.tacticai.site",
-                "http://localhost:3000",
-                "http://127.0.0.1:3000"
-            )
     }
 }
