@@ -1,10 +1,14 @@
 package com.example.gameservice.config
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.server.ServerHttpRequest
+import org.springframework.http.server.ServerHttpResponse
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
+import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer
+import org.springframework.web.socket.server.HandshakeInterceptor
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -22,6 +26,30 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
         // 클라이언트는 /ws 주소로 STOMP 연결을 시도
         registry.addEndpoint("/ws")
             .setAllowedOriginPatterns("*") // 모든 출처에서의 연결을 허용 (CORS)
+            .addInterceptors(object : HandshakeInterceptor {
+                override fun beforeHandshake(
+                    request: ServerHttpRequest,
+                    response: ServerHttpResponse,
+                    wsHandler: WebSocketHandler,
+                    attributes: MutableMap<String, Any>
+                ): Boolean {
+                    println("🤝 WebSocket handshake initiated")
+                    return true
+                }
+
+                override fun afterHandshake(
+                    request: ServerHttpRequest,
+                    response: ServerHttpResponse,
+                    wsHandler: WebSocketHandler,
+                    exception: Exception?
+                ) {
+                    if (exception != null) {
+                        println("⚠️ WebSocket handshake failed: ${exception.message}")
+                    } else {
+                        println("✅ WebSocket handshake completed")
+                    }
+                }
+            })
             .withSockJS() // SockJS를 사용하여 웹소켓을 지원하지 않는 브라우저에서도 통신 가능하도록 함
     }
 }
