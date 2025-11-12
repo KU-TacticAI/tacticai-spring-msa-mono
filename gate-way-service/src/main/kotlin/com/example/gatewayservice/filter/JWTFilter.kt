@@ -63,7 +63,7 @@ class JWTFilter(
     }
 
     private fun isPublicEndpoint(path: String): Boolean {
-        return path.startsWith("/ws") ||
+        return path.startsWith("/api/game/ws") ||
                path.startsWith("/api/core/users/sign-in") ||
                path.startsWith("/api/core/login") ||
                path.startsWith("/api/core/token/refresh") ||
