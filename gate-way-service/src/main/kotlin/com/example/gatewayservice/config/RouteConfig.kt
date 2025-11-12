@@ -25,13 +25,17 @@ class RouteConfig(
                     .filters{it.stripPrefix(2)}
                     .uri(coreServiceUrl)
             }
+            // WebSocket 라우트 - 순서 중요! (일반 game-service보다 먼저 와야 함)
             .route("game-ws") { r ->
                 r.path("/api/game/ws/**")
                     .filters { f ->
+                        // stripPrefix 제거 - WebSocket 핸드셰이크 경로 유지
                         f.dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
                             .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST")
                     }
-                    .uri(socketServiceUrl)
+                    // lb:ws:// 형식으로 WebSocket 프로토콜 명시
+                    .uri(socketServiceUrl.replace("http://", "lb:ws://")
+                        .replace("https://", "lb:wss://"))
             }
             .route("game-service") { r ->
                 r.path("/api/game/**")

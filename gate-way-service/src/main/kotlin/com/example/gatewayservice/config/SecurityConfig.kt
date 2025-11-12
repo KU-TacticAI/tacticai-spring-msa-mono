@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.web.cors.CorsConfiguration
@@ -31,11 +30,12 @@ class SecurityConfig(
             allowedOriginPatterns = listOf(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
+                "https://tacticai.site",
                 "https://api.tacticai.site"
             )
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
-            exposedHeaders = listOf("Authorization", "Location", "Link", "X-Total-Count", "Set-Cookie")
+            exposedHeaders = listOf("Authorization", "Location", "Link", "X-Total-Count", "Set-Cookie", "Upgrade", "Connection")
             maxAge = 3600
         }
         return UrlBasedCorsConfigurationSource().apply {
@@ -46,7 +46,7 @@ class SecurityConfig(
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         return http
-            .cors { it.disable() }
+            .cors { it.configurationSource(corsConfigurationSource()) }  // CORS 설정 적용
             .csrf { it.disable() }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
@@ -55,9 +55,11 @@ class SecurityConfig(
                     .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     // 🚩 웹소켓/SockJS 핸드셰이크와 폴백 경로 전부 허용
                     .pathMatchers(
-                        "/api/game/ws/**",        // SockJS 기본
-                        "/websocket",    // 직접 ws 업그레이드 경로
-                        "/sockjs/**",     // 환경에 따라 생성되는 폴백 경로
+                        "/api/game/ws/**",        // SockJS 기본 경로
+                        "/websocket/**",          // 직접 ws 업그레이드 경로
+                        "/sockjs/**",             // 환경에 따라 생성되는 폴백 경로
+                        "/api/game/ws",           // WebSocket 엔드포인트
+                        "/api/game/ws/info"       // SockJS info 엔드포인트
                     ).permitAll()
                     .pathMatchers(
                         "/api/**",

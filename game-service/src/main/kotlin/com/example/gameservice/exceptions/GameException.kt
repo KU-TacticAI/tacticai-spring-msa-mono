@@ -14,6 +14,7 @@ enum class GameException(
 
     DELETED_AI(HttpStatus.BAD_REQUEST, "이미 삭제된 AI입니다."),
     NOT_FOUND_AI(HttpStatus.NOT_FOUND, "AI 를 찾을 수 없습니다."),
+    NOT_FOUND_ROOM(HttpStatus.NOT_FOUND, "방을 찾을 수 없습니다."),
 
     PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "참가자를 찾을 수 없습니다.");
 

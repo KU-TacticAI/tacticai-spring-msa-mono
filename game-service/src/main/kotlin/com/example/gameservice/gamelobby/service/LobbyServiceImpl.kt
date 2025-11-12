@@ -229,12 +229,12 @@ class LobbyServiceImpl(
     }
 
     private fun findByIdOrElseThrow(roomId: Long): GameRoom {
-        return gameRoomRepository.findById(roomId).orElseThrow { NotFoundException(GameException.NOT_FOUND_AI) }
+        return gameRoomRepository.findById(roomId).orElseThrow { NotFoundException(GameException.NOT_FOUND_ROOM) }
     }
 
     private fun findByRoomIdAndUserIdOrElseThrow(roomId: Long, userId: Long): GameLobbyParticipant {
         return gameLobbyParticipantRepository.findByRoomIdAndUserId(roomId, userId)
-            .orElseThrow { NotFoundException(GameException.NOT_FOUND_AI) }
+            .orElseThrow { NotFoundException(GameException.NOT_FOUND_ROOM) }
     }
 
 //    private fun broadcastRoomState(roomId: Long, selectedAi: AiUrlsResponseDto? = null) {
