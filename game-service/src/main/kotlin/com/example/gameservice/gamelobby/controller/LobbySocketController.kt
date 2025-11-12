@@ -1,6 +1,7 @@
 package com.example.gameservice.gamelobby.controller
 
 import com.example.gameservice.gamelobby.service.LobbyService
+import com.example.gameservice.redis_pubsub.service.RedisPubSubService
 import org.springframework.context.event.EventListener
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -34,7 +35,8 @@ data class LeaveRequestDto(
 @Controller
 class LobbySocketController(
     private val lobbyService: LobbyService,
-    private val messagingTemplate: SimpMessagingTemplate
+//    private val messagingTemplate: SimpMessagingTemplate
+    private val redisPubSubService: RedisPubSubService
 ) {
 
     private val sessionInfoMap = ConcurrentHashMap<String, Pair<String, Long>>()
@@ -52,7 +54,10 @@ class LobbySocketController(
 
         // 1. 세션을 먼저 등록 (레이스 컨디션 방지)
         sessionInfoMap[sessionId] = Pair(roomId, userId)
-        println("✅ Session registered: $sessionId -> Room: $roomId, User: $userId")
+//        println("✅ Session registered: $sessionId -> Room: $roomId, User: $userId")
+
+        redisPubSubService.addSession(roomId, userId.toString(), sessionId)
+        println("✅ Session registered via Redis: $sessionId -> Room: $roomId, User: $userId")
 
         try {
             // 2. 방 정보 확인
@@ -91,8 +96,12 @@ class LobbySocketController(
         }
 
         if (updatedRoom != null) {
-            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+            redisPubSubService.publishState(roomId, updatedRoom)
         }
+
+//        if (updatedRoom != null) {
+//            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+//        }
     }
 
     @MessageMapping("game.room.{roomId}.ready")
@@ -107,7 +116,8 @@ class LobbySocketController(
         )
         val updatedRoom = lobbyService.findRoomById(roomId.toLong())
         if (updatedRoom != null) {
-            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+//            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+            redisPubSubService.publishState(roomId, updatedRoom)
         }
     }
 
@@ -116,7 +126,8 @@ class LobbySocketController(
         lobbyService.startRoom(roomId.toLong())
         val updatedRoom = lobbyService.findRoomById(roomId.toLong())
         if (updatedRoom != null) {
-            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+//            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+            redisPubSubService.publishState(roomId, updatedRoom)
         }
     }
 
@@ -133,7 +144,8 @@ class LobbySocketController(
 
         val updatedRoom = lobbyService.findRoomById(roomId.toLong())
         if (updatedRoom != null) {
-            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+//            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+            redisPubSubService.publishState(roomId, updatedRoom)
         }
     }
 
@@ -157,7 +169,8 @@ class LobbySocketController(
 
         val updatedRoom = lobbyService.findRoomById(roomId.toLong())
         if (updatedRoom != null) {
-            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+//            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+            redisPubSubService.publishState(roomId, updatedRoom)
         }
     }
 
@@ -166,26 +179,27 @@ class LobbySocketController(
         val headerAccessor = StompHeaderAccessor.wrap(event.message)
         val sessionId = headerAccessor.sessionId ?: return
 
-        val sessionInfo = sessionInfoMap.remove(sessionId)
-
-        if (sessionInfo != null) {
-            val (roomId, userId) = sessionInfo
-            println("🚨 WebSocket disconnected: $sessionId. User $userId leaving room $roomId")
-
-            try {
-                lobbyService.leaveRoom(roomId.toLong(), userId)
-
-                val updatedRoom = lobbyService.findRoomById(roomId.toLong())
-                if (updatedRoom != null) {
-                    messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
-                }
-
-            } catch (e: Exception) {
-                println("⚠️ Disconnect leaveRoom 오류: ${e.message}")
-            }
-        } else {
-            // 맵에 없는 세션 (예: 방에 join하기 전 로비에서만 있다가 나간 경우)
-            println("⚠️ WebSocket disconnected: $sessionId (No room/user mapping found, likely lobby user)")
-        }
+        redisPubSubService.removeSession(sessionId)
+//        val sessionInfo = sessionInfoMap.remove(sessionId)
+//
+//        if (sessionInfo != null) {
+//            val (roomId, userId) = sessionInfo
+//            println("🚨 WebSocket disconnected: $sessionId. User $userId leaving room $roomId")
+//
+//            try {
+//                lobbyService.leaveRoom(roomId.toLong(), userId)
+//
+//                val updatedRoom = lobbyService.findRoomById(roomId.toLong())
+//                if (updatedRoom != null) {
+//                    messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+//                }
+//
+//            } catch (e: Exception) {
+//                println("⚠️ Disconnect leaveRoom 오류: ${e.message}")
+//            }
+//        } else {
+//            // 맵에 없는 세션 (예: 방에 join하기 전 로비에서만 있다가 나간 경우)
+//            println("⚠️ WebSocket disconnected: $sessionId (No room/user mapping found, likely lobby user)")
+//        }
     }
 }
