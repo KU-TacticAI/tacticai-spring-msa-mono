@@ -25,18 +25,18 @@ class RouteConfig(
                     .filters{it.stripPrefix(2)}
                     .uri(coreServiceUrl)
             }
-            .route("game-service") { r ->
-                r.path("/api/game/**")
-                    .filters{it.stripPrefix(2)}
-                    .uri(gameServiceUrl)
-            }
             .route("game-ws") { r ->
-                r.path("/ws/**")
+                r.path("/api/game/ws/**")
                     .filters { f ->
                         f.dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_FIRST")
                             .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST")
                     }
                     .uri(socketServiceUrl)
+            }
+            .route("game-service") { r ->
+                r.path("/api/game/**")
+                    .filters { it.stripPrefix(2) }
+                    .uri(gameServiceUrl)
             }
             .build()
     }
