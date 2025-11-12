@@ -30,7 +30,8 @@ class SecurityConfig(
             allowedOriginPatterns = listOf(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
-                "https://api.tacticai.site"
+                "https://api.tacticai.site",
+                "https://tacticai.site"
             )
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
