@@ -21,9 +21,10 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
         // 웹소켓 연결을 위한 엔드포인트 설정
         // 클라이언트는 /ws 주소로 STOMP 연결을 시도
         registry.addEndpoint("/ws")
-            .setAllowedOrigins(
-                "https://tacticai.site",
-                "http://localhost:3000")
+//            .setAllowedOrigins(
+//                "https://tacticai.site",
+//                "http://localhost:3000")
+            .setAllowedOriginPatterns("*")
             .withSockJS() // SockJS를 사용하여 웹소켓을 지원하지 않는 브라우저에서도 통신 가능하도록 함
     }
 }
