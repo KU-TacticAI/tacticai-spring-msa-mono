@@ -55,7 +55,7 @@ class SecurityConfig(
                     .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     // 🚩 웹소켓/SockJS 핸드셰이크와 폴백 경로 전부 허용
                     .pathMatchers(
-                        "/ws/**",        // SockJS 기본
+                        "/api/game/ws/**",        // SockJS 기본
                         "/websocket",    // 직접 ws 업그레이드 경로
                         "/sockjs/**",     // 환경에 따라 생성되는 폴백 경로
                     ).permitAll()
