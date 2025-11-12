@@ -1,5 +1,6 @@
 package com.example.gameservice.gamelobby.controller
 
+import com.example.gameservice.game.service.GameService
 import com.example.gameservice.gamelobby.service.LobbyService
 import org.springframework.context.event.EventListener
 import org.springframework.messaging.handler.annotation.DestinationVariable
@@ -33,8 +34,12 @@ data class LeaveRequestDto(
 @Controller
 class LobbySocketController(
     private val lobbyService: LobbyService,
-    private val messagingTemplate: SimpMessagingTemplate
+    private val messagingTemplate: SimpMessagingTemplate,
+    private val gameService: GameService
 ) {
+
+    // 세션별 사용자 정보를 저장하는 맵
+    private val sessionUserMap = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Long>>() // sessionId -> (roomId, userId)
 
     @MessageMapping("game.room.{roomId}.join")
     fun joinRoom(
@@ -43,6 +48,9 @@ class LobbySocketController(
         headerAccessor: SimpMessageHeaderAccessor
     ) {
         val sessionId = headerAccessor.sessionId ?: return
+
+        // 세션 정보 저장 (연결 끊김 시 사용)
+        sessionUserMap[sessionId] = Pair(roomId.toLong(), joinRequest.userId)
 
         // 1. 방 정보 확인 및 입장
         val room = lobbyService.findRoomById(roomId.toLong()) ?: return
@@ -55,6 +63,8 @@ class LobbySocketController(
         if (updatedRoom != null) {
             messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
         }
+
+        println("✅ User ${joinRequest.userId} joined room $roomId (session: $sessionId)")
     }
 
     @MessageMapping("game.room.{roomId}.ready")
@@ -102,9 +112,16 @@ class LobbySocketController(
     @MessageMapping("game.room.{roomId}.leave")
     fun leaveRoom(
         @DestinationVariable roomId: String,
-        @Payload request: LeaveRequestDto
+        @Payload request: LeaveRequestDto,
+        headerAccessor: SimpMessageHeaderAccessor
     ) {
         try {
+            val sessionId = headerAccessor.sessionId
+            if (sessionId != null) {
+                sessionUserMap.remove(sessionId)
+                println("🚪 User ${request.userId} left room $roomId (session removed)")
+            }
+
             lobbyService.leaveRoom(roomId.toLong(), request.userId.toLong())
         } catch (e: Exception) {
             println("⚠️ leaveRoom 오류: ${e.message}")
@@ -121,7 +138,24 @@ class LobbySocketController(
         val headerAccessor = StompHeaderAccessor.wrap(event.message)
         val sessionId = headerAccessor.sessionId ?: return
 
-        // 예: 세션이 사라졌을 때 유저 퇴장 처리 (선택적)
         println("⚠️ WebSocket disconnected: $sessionId")
+
+        // 세션 정보가 있으면 자동으로 방 나가기 처리
+        val userInfo = sessionUserMap.remove(sessionId)
+        if (userInfo != null) {
+            val (roomId, userId) = userInfo
+            try {
+                println("🔄 Auto-leaving room $roomId for user $userId due to disconnect")
+                lobbyService.leaveRoom(roomId, userId)
+
+                // 방 상태 업데이트 브로드캐스트
+                val updatedRoom = lobbyService.findRoomById(roomId)
+                if (updatedRoom != null) {
+                    messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
+                }
+            } catch (e: Exception) {
+                println("⚠️ Auto-leave 처리 중 오류: ${e.message}")
+            }
+        }
     }
 }
