@@ -20,7 +20,8 @@ class SecurityConfig(private val jwtUtil: JWTUtil) {
     @Order(1) // ⭐️ 1. WebSocket용 필터 체인 (1순위)
     fun webSocketSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .securityMatcher("/api/game/ws/**") // ⭐️ /ws/** 경로에만 적용
+//            .securityMatcher("/api/game/ws/**") // ⭐️ /ws/** 경로에만 적용
+            .securityMatcher("/ws/**") // ⭐️ /ws/** 경로에만 적용
             .authorizeHttpRequests {
                 it.anyRequest().permitAll() // /ws/** 모든 요청 허용
             }
