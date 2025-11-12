@@ -34,8 +34,9 @@ class RouteConfig(
                             .dedupeResponseHeader("Access-Control-Allow-Credentials", "RETAIN_FIRST")
                     }
                     // lb:ws:// 형식으로 WebSocket 프로토콜 명시
-                    .uri(socketServiceUrl.replace("http://", "lb:ws://")
-                        .replace("https://", "lb:wss://"))
+//                    .uri(socketServiceUrl.replace("http://", "lb:ws://")
+//                        .replace("https://", "lb:wss://"))
+                    .uri(socketServiceUrl)
             }
             .route("game-service") { r ->
                 r.path("/api/game/**")
