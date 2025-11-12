@@ -1,5 +1,7 @@
 package com.example.gameservice.gamelobby.controller
 
+import com.example.gameservice.gamelobby.dto.RoomResponseDto
+import com.example.gameservice.gamelobby.entity.GameRoom
 import com.example.gameservice.gamelobby.service.LobbyService
 import com.example.gameservice.redis_pubsub.service.RedisPubSubService
 import org.springframework.context.event.EventListener
@@ -50,7 +52,7 @@ class LobbySocketController(
         println("⚠⚠ joinRoom 시작~~~~~~~~~~~~~~~~~~~")
         val sessionId = headerAccessor.sessionId ?: return
         val userId = joinRequest.userId
-        var updatedRoom: Any? = null
+        var updatedRoom: RoomResponseDto? = null
 
         // 1. 세션을 먼저 등록 (레이스 컨디션 방지)
         sessionInfoMap[sessionId] = Pair(roomId, userId)
@@ -97,6 +99,7 @@ class LobbySocketController(
 
         if (updatedRoom != null) {
             redisPubSubService.publishState(roomId, updatedRoom)
+            redisPubSubService.publishLobbyUpdate(updatedRoom.getGameType())
         }
 
 //        if (updatedRoom != null) {
@@ -128,6 +131,7 @@ class LobbySocketController(
         if (updatedRoom != null) {
 //            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
             redisPubSubService.publishState(roomId, updatedRoom)
+            redisPubSubService.publishLobbyUpdate(updatedRoom.getGameType())
         }
     }
 
@@ -171,6 +175,7 @@ class LobbySocketController(
         if (updatedRoom != null) {
 //            messagingTemplate.convertAndSend("/topic/game.room.$roomId.state", updatedRoom)
             redisPubSubService.publishState(roomId, updatedRoom)
+            redisPubSubService.publishLobbyUpdate(updatedRoom.getGameType())
         }
     }
 
@@ -202,4 +207,6 @@ class LobbySocketController(
 //            println("⚠️ WebSocket disconnected: $sessionId (No room/user mapping found, likely lobby user)")
 //        }
     }
+
+
 }

@@ -70,6 +70,9 @@ class RedisPubSubService(
             val (roomId, userId) = info
             println("🚪 User $userId disconnected from Room $roomId")
 
+            val roomBeforeLeave = gameLobbyService.findRoomById(roomId.toLong())
+            val gameType = roomBeforeLeave?.getGameType() // 널이 될 수 있음
+
             // 1. 퇴장 처리
             gameLobbyService.leaveRoom(roomId.toLong(), userId.toLong())
 
@@ -79,6 +82,10 @@ class RedisPubSubService(
             // 3. ⭐️ 'userLeft' 이벤트 대신, 갱신된 '상태'를 Redis로 발행
             if (updatedRoom != null) {
                 publishState(roomId, updatedRoom) // 위에서 만든 상태 발행 메서드 호출
+            }
+
+            if (gameType != null) {
+                publishLobbyUpdate(gameType)
             }
         }
     }
@@ -156,7 +163,23 @@ class RedisPubSubService(
         listenerContainer.addMessageListener(stateListener, PatternTopic("game.room.state.*"))
         println("🔔 Redis subscription started for game.room.state.*")
 
-        // (참고: 채팅 등 다른 리스너도 필요시 동일하게 PatternTopic으로 추가)
+        val lobbyListener = MessageListener { message: Message, _: ByteArray? ->
+            val receivedMessage = String(message.body) // 이것 자체가 '로비 방 목록' JSON
+            val channel = String(message.channel) // "game.lobby.chess"
+            val gameType = channel.split(".").last() // "chess"
+
+            println("📨 Received LOBBY update from Redis for $gameType")
+            try {
+                // 클라이언트가 구독 중인 STOMP 토픽으로 메시지(방 목록) 전송
+                messagingTemplate.convertAndSend("/topic/lobby/$gameType", receivedMessage)
+            } catch (e: Exception) {
+                println("❌ Error sending STOMP LOBBY message: ${e.message}")
+            }
+        }
+
+        // ⭐️ "game.lobby.*" 패턴으로 구독
+        listenerContainer.addMessageListener(lobbyListener, PatternTopic("game.lobby.*"))
+        println("🔔 Redis subscription started for game.lobby.*")
     }
 
     // Redis에 메시지 발행
@@ -167,6 +190,27 @@ class RedisPubSubService(
             println("📤 Published to $channel: $messagePayload")
         } catch (e: Exception) {
             println("❌ Error publishing to Redis: ${e.message}")
+        }
+    }
+
+    fun publishLobbyUpdate(gameType: String) {
+        val channel = "game.lobby.$gameType"
+        try {
+            // 서비스 로직을 통해 최신 로비 상태를 가져옴
+            val lobbyState = gameLobbyService.findAllRooms(gameType)
+            val messagePayload = objectMapper.writeValueAsString(lobbyState)
+            redisTemplate.convertAndSend(channel, messagePayload)
+            println("📤 Published LOBBY update to $channel")
+
+            // "all" 로비도 업데이트 (gameType이 "all"이 아닌 경우)
+            if (gameType != "all") {
+                val allLobbyState = gameLobbyService.findAllRooms("all")
+                val allMessagePayload = objectMapper.writeValueAsString(allLobbyState)
+                redisTemplate.convertAndSend("game.lobby.all", allMessagePayload)
+                println("📤 Published LOBBY update to game.lobby.all")
+            }
+        } catch (e: Exception) {
+            println("❌ Error publishing LOBBY update to Redis: ${e.message}")
         }
     }
 }

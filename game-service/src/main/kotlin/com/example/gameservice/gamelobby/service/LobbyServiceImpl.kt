@@ -25,7 +25,7 @@ class LobbyServiceImpl(
     private val gameLobbyParticipantRepository: GameLobbyParticipantRepository,
     private val webClient: WebClient,
     private val coreClient: CoreClient,
-    private val messagingTemplate: SimpMessagingTemplate
+//    private val messagingTemplate: SimpMessagingTemplate
 ) : LobbyService {
 
     override fun createRoom(userId: String, requestData: CreateRoomRequestDto): RoomResponseDto {
@@ -52,7 +52,7 @@ class LobbyServiceImpl(
         ))
 
         // Broadcast updates to lobby subscribers
-        broadcastLobbyUpdates(savedRoom.getGameType())
+//        broadcastLobbyUpdates(savedRoom.getGameType())
 
         // Return the state of the new room to the creator
         return findRoomById(savedRoom.getId())
@@ -82,10 +82,10 @@ class LobbyServiceImpl(
             }
         }
 
-        if (!isRoomDeleted) {
-            broadcastRoomState(roomId) // Update room state for remaining players
-        }
-        broadcastLobbyUpdates(gameType) // Update lobby for everyone
+//        if (!isRoomDeleted) {
+//            broadcastRoomState(roomId) // Update room state for remaining players
+//        }
+//        broadcastLobbyUpdates(gameType) // Update lobby for everyone
 
         return if (isRoomDeleted) "방이 삭제되었습니다." else "퇴장 완료"
     }
@@ -150,8 +150,8 @@ class LobbyServiceImpl(
         )
         gameLobbyParticipantRepository.save(participant)
 
-        broadcastRoomState(roomId)
-        broadcastLobbyUpdates(room.getGameType())
+//        broadcastRoomState(roomId)
+//        broadcastLobbyUpdates(room.getGameType())
         return "입장 완료"
     }
 
@@ -162,7 +162,7 @@ class LobbyServiceImpl(
 
         val selectedAi = coreClient.getAiUrlById(aiId)
 
-        broadcastRoomState(roomId, selectedAi)
+//        broadcastRoomState(roomId, selectedAi)
         return ResponseLobbyDto.from(updatedParticipant, selectedAi)
     }
 
@@ -174,8 +174,8 @@ class LobbyServiceImpl(
         sendGameRequestToFastApi(room)
 
         val roomResponse = findRoomById(roomId)
-        broadcastRoomState(roomId)
-        broadcastLobbyUpdates(room.getGameType())
+//        broadcastRoomState(roomId)
+//        broadcastLobbyUpdates(room.getGameType())
         return roomResponse
     }
 
@@ -186,7 +186,7 @@ class LobbyServiceImpl(
         participant.isReady = !participant.isReady
         gameLobbyParticipantRepository.save(participant)
 
-        broadcastRoomState(roomId)
+//        broadcastRoomState(roomId)
     }
 
     private fun sendGameRequestToFastApi(room: GameRoom) {
@@ -237,21 +237,21 @@ class LobbyServiceImpl(
             .orElseThrow { NotFoundException(GameException.NOT_FOUND_AI) }
     }
 
-    private fun broadcastRoomState(roomId: Long, selectedAi: AiUrlsResponseDto? = null) {
-        val roomState = findRoomById(roomId, selectedAi)
-        val topic = "/topic/game.room.$roomId.state"
-        messagingTemplate.convertAndSend(topic, roomState)
-    }
-
-    private fun broadcastLobbyUpdates(gameType: String) {
-        // Send game-specific lobby update
-        val gameLobbyState = getLobbyState(gameType)
-        messagingTemplate.convertAndSend("/topic/lobby/$gameType", gameLobbyState)
-
-        // Send all-games lobby update
-        val allLobbyState = getLobbyState("all")
-        messagingTemplate.convertAndSend("/topic/lobby/all", allLobbyState)
-    }
+//    private fun broadcastRoomState(roomId: Long, selectedAi: AiUrlsResponseDto? = null) {
+//        val roomState = findRoomById(roomId, selectedAi)
+//        val topic = "/topic/game.room.$roomId.state"
+//        messagingTemplate.convertAndSend(topic, roomState)
+//    }
+//
+//    private fun broadcastLobbyUpdates(gameType: String) {
+//        // Send game-specific lobby update
+//        val gameLobbyState = getLobbyState(gameType)
+//        messagingTemplate.convertAndSend("/topic/lobby/$gameType", gameLobbyState)
+//
+//        // Send all-games lobby update
+//        val allLobbyState = getLobbyState("all")
+//        messagingTemplate.convertAndSend("/topic/lobby/all", allLobbyState)
+//    }
 
     private fun getLobbyState(gameName: String): List<RoomResponseDto> {
         val rooms = if ("all".equals(gameName, ignoreCase = true)) {
