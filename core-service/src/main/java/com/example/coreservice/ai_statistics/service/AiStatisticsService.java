@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface AiStatisticsService {
-
+  AiStatisticsDto createAiStatics(Long id);
   List<AiStatisticsDto> getAiStatics(String userId);
 }

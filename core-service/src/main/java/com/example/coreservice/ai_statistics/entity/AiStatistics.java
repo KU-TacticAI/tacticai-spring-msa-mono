@@ -32,7 +32,7 @@ public class AiStatistics extends BaseEntity {
 
   private int draws;
 
-  private double avg_turns;
+  private double avgTurns;
 
   private int avgResponseTimeMs;
 

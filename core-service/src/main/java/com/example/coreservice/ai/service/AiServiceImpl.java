@@ -14,6 +14,8 @@ import com.example.coreservice.ai.entity.AiFile;
 import com.example.coreservice.ai.repository.AiFileRepository;
 import com.example.coreservice.ai.repository.AiRepository;
 //import com.example.coreservice.ai.repository.UserAiRepository;
+import com.example.coreservice.ai_statistics.service.AiStatisticsService;
+import com.example.coreservice.ai_statistics.service.AiStatisticsServiceImpl;
 import com.example.coreservice.user.service.UserService;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -32,6 +34,7 @@ public class AiServiceImpl implements AiService {
 //  private final UserAiRepository userAiRepository;
   private final S3Service s3Service;
   private final AiFileRepository aiFileRepository;
+  private final AiStatisticsService aiStatisticsService;
 
   @Override
   @Transactional
@@ -64,6 +67,8 @@ public class AiServiceImpl implements AiService {
 //        .aiId(savedAi.getId())
 //        .build();
 //    userAiRepository.save(userAi);
+
+    aiStatisticsService.createAiStatics(savedAi.getId());
 
     return AiResponseDto.toDto(aiAgent);
   }

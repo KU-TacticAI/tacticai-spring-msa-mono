@@ -29,4 +29,6 @@ public interface AiRepository extends JpaRepository<AiAgent, Long> {
   List<AiAgent> findByUserIdIn(List<Long> userIdList);
 
   List<AiAgent> findByIdIn(List<Long> ids);
+
+  List<AiAgent> getAiAgentsByUserId(long l);
 }
