@@ -1,13 +1,10 @@
 package com.example.coreservice.ai_statistics.service;
 
-import com.example.coreservice.ai.dto.AiResponseDto;
 import com.example.coreservice.ai.entity.AiAgent;
 import com.example.coreservice.ai.repository.AiRepository;
-import com.example.coreservice.ai.service.AiService;
 import com.example.coreservice.ai_statistics.dto.AiStatisticsDto;
 import com.example.coreservice.ai_statistics.entity.AiStatistics;
 import com.example.coreservice.ai_statistics.repository.AiStatisticsRepository;
-import com.example.coreservice.user.service.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +28,7 @@ public class AiStatisticsServiceImpl implements AiStatisticsService{
         .avgTurns(0)
         .avgResponseTimeMs(0)
         .gameCount(0)
+        .deletedAt(null)
         .build();
     AiStatistics savedAiStatistics = aiStatisticsRepository.save(aiStatistics);
     return AiStatisticsDto.toDto(savedAiStatistics);
@@ -52,5 +50,12 @@ public class AiStatisticsServiceImpl implements AiStatisticsService{
           .gameCount(ai.getGameCount())
         .build();
     }).toList();
+  }
+
+  @Override
+  public void delete(Long id) {
+    AiStatistics aiStatistics = aiStatisticsRepository.findById(id).orElseThrow();
+    aiStatistics.delete();
+    aiStatisticsRepository.save(aiStatistics);
   }
 }

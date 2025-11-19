@@ -10,12 +10,9 @@ import com.example.coreservice.ai.dto.DeleteAiRequestDto;
 import com.example.coreservice.ai.dto.UpdateAiRequestDto;
 import com.example.coreservice.ai.entity.AiAgent;
 import com.example.coreservice.ai.entity.AiFile;
-//import com.example.coreservice.ai.entity.UserAi;
 import com.example.coreservice.ai.repository.AiFileRepository;
 import com.example.coreservice.ai.repository.AiRepository;
-//import com.example.coreservice.ai.repository.UserAiRepository;
 import com.example.coreservice.ai_statistics.service.AiStatisticsService;
-import com.example.coreservice.ai_statistics.service.AiStatisticsServiceImpl;
 import com.example.coreservice.user.service.UserService;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -132,6 +129,7 @@ public class AiServiceImpl implements AiService {
     s3Service.deleteFile(aiAgent.getAiUrl());
 
     aiAgent.delete();
+    aiStatisticsService.delete(aiAgent.getId());
     aiRepository.save(aiAgent);
     return "삭제되었습니다.";
   }
