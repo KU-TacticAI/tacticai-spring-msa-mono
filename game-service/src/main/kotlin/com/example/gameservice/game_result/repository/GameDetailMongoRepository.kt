@@ -1,6 +1,5 @@
 package com.example.gameservice.game_result.repository
 
-import com.example.gameservice.common.GameStatus
 import com.example.gameservice.game_result.entity.GameDetailLog
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository

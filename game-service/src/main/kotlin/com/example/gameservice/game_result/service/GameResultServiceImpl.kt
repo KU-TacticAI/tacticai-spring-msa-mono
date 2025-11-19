@@ -5,7 +5,6 @@ import com.example.gameservice.game_result.entity.GameDetailLog
 import com.example.gameservice.game_result.entity.GameInfo
 import com.example.gameservice.game_result.repository.GameDetailMongoRepository
 import com.example.gameservice.game_result.repository.GameInfoMongoRepository
-import lombok.RequiredArgsConstructor
 import org.springframework.stereotype.Service
 
 @Service

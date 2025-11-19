@@ -1,7 +1,6 @@
 package com.example.gameservice.config
 
 import com.example.gameservice.common.GameStatus
-import com.example.gameservice.game.entity.Game
 import com.example.gameservice.game_result.entity.GameDetailLog
 import com.example.gameservice.game_result.repository.GameDetailMongoRepository
 import com.example.gameservice.game_result.repository.GameInfoMongoRepository
