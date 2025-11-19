@@ -31,6 +31,7 @@ public class AiStatisticsServiceImpl implements AiStatisticsService{
         .avgTurns(0)
         .avgResponseTimeMs(0)
         .gameCount(0)
+        .deletedAt(null)
         .build();
     AiStatistics savedAiStatistics = aiStatisticsRepository.save(aiStatistics);
     return AiStatisticsDto.toDto(savedAiStatistics);
@@ -52,5 +53,12 @@ public class AiStatisticsServiceImpl implements AiStatisticsService{
           .gameCount(ai.getGameCount())
         .build();
     }).toList();
+  }
+
+  @Override
+  public void delete(Long id) {
+    AiStatistics aiStatistics = aiStatisticsRepository.findById(id).orElseThrow();
+    aiStatistics.delete();
+    aiStatisticsRepository.save(aiStatistics);
   }
 }

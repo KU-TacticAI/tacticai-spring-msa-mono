@@ -5,17 +5,16 @@ import com.example.gameservice.game_result.entity.GameInfo
 import lombok.AllArgsConstructor
 import lombok.Getter
 import lombok.NoArgsConstructor
-import java.util.*
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 data class GameResultResponseDto(
-    val id: UUID, // String -> UUID로 수정
+    val id: String?, // MongoDB ObjectId (문자열)
     val playerId: Long, // player_id -> playerId 로 수정
     val enemyId: Long, // enemy_id -> enemyId 로 수정
     val aiId: Long?, // ai_id -> aiId 로 수정 (Nullable)
-    val gameType: String?, // gaem_type -> gameType 로 수정
+    val gameType: String?, // game_type -> gameType 로 수정
     val winnerAiId: Long?,
     val responseTimeMs: Int,
     val turnCount: Int,
@@ -36,7 +35,7 @@ data class GameResultResponseDto(
             // 3. 가장 마지막 턴의 moveData를 가져옵니다. (단순화를 위해 마지막 로그 사용)
             val lastMoveData = gameDetailLog.maxByOrNull { it.turnCount ?: 0 }?.moveData
 
-            val isWin = gameInfo.aiIds?.get(userIndex) == gameInfo.winnerAiId;
+            val isWin = gameInfo.aiIds?.get(userIndex) == gameInfo.winnerAiId
 
             // 4. DTO 생성 및 반환
             return GameResultResponseDto(

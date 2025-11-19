@@ -132,6 +132,7 @@ public class AiServiceImpl implements AiService {
     s3Service.deleteFile(aiAgent.getAiUrl());
 
     aiAgent.delete();
+    aiStatisticsService.delete(aiAgent.getId());
     aiRepository.save(aiAgent);
     return "삭제되었습니다.";
   }

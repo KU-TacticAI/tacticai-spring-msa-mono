@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,5 +38,11 @@ public class AiStatistics extends BaseEntity {
   private int avgResponseTimeMs;
 
   private double winRate;
+
+  private LocalDateTime deletedAt = null;
+
+  public void delete(){
+    this.deletedAt = LocalDateTime.now();
+  }
 
 }

@@ -9,7 +9,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
-import java.util.*
 
 @Document(collection = "game_detail_log")
 @Getter
@@ -20,32 +19,29 @@ data class GameDetailLog(
 
     @Id
     @Indexed
-    val id: UUID,
+    val id: String?, // MongoDB ObjectId를 문자열로 저장 (null이면 자동 생성)
 
     @Field("response_time_ms")
-    val responseTimeMs: Int?,
+    val responseTimeMs: Int?, // AI 응답 시간 (밀리초)
 
-    // JSON 필드는 특정 구조가 없다면 Map 이나 Any 타입으로 매핑하는 것이 유연합니다.
     @Field("board_snapshot")
-    val boardSnapshot: Map<String, Any>?,
+    val boardSnapshot: Map<String, Any>?, // 해당 턴의 보드 상태
 
     @Field("turn_count")
-    val turnCount: Int?,
+    val turnCount: Int?, // 턴 번호
 
     @Field("move_data")
-    val moveData: String?,
+    val moveData: String?, // 실제 수 데이터 (좌표 등)
 
-    // ENUM 타입은 Kotlin의 enum class로 매핑하여 타입 안정성을 높이는 것이 좋습니다.
     @Field("status")
-    val status: GameStatus?,
+    val status: GameStatus?, // 게임 진행 상태
 
     @Field("log_output")
-    val logOutput: Map<String, Any>?,
+    val logOutput: Map<String, Any>?, // 로그 메시지 또는 추가 정보
 
     @Field("ai_id")
-    val aiId: Long?,
+    val aiId: Long?, // 해당 턴을 플레이한 AI의 ID
 
-    // gameinfo 테이블과의 관계를 나타내는 외래 키
     @Field("gameinfo_id")
-    val gameInfoId: UUID?
+    val gameInfoId: String? // game_info 컬렉션의 _id 참조 (문자열)
 )
