@@ -5,6 +5,7 @@ import com.example.gameservice.game_result.entity.GameInfo
 import lombok.AllArgsConstructor
 import lombok.Getter
 import lombok.NoArgsConstructor
+import java.time.LocalDateTime
 
 @Getter
 @AllArgsConstructor
@@ -19,7 +20,8 @@ data class GameResultResponseDto(
     val responseTimeMs: Int,
     val turnCount: Int,
     val moveData: String?, // move_data
-    val isWin: Boolean
+    val isWin: Boolean,
+    val createdAt: LocalDateTime?,
 ) {
     companion object {
         fun toDto(gameInfo: GameInfo, userId: Long, gameDetailLog: List<GameDetailLog>): GameResultResponseDto {
@@ -48,7 +50,8 @@ data class GameResultResponseDto(
                 responseTimeMs = avgResponseTime, // 평균 응답 시간
                 turnCount = maxTurnCount, // 최종 턴 수
                 moveData = lastMoveData, // 최종 무브 데이터
-                isWin = isWin
+                isWin = isWin,
+                createdAt = gameInfo.createdAt
             )
         }
     }
