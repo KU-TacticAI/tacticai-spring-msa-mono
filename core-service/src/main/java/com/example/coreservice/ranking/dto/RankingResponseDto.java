@@ -17,33 +17,23 @@ import lombok.NoArgsConstructor;
 public class RankingResponseDto {
 
   private Long userId;
-
   private String username;
-
-  private Long totalScore;
-
   private Long rank;
+  private Double winRate;
+  private String record;
 
+  // ▼ [추가] AI 목록 필드 추가
   private List<RankingAiResponseDto> aiList;
 
-  public static RankingResponseDto toDto(Ranking ranking, Users user, List<AiAgent> aiAgents) {
-    List<RankingAiResponseDto> aiList = aiAgents.stream()
-        .map(ai -> RankingAiResponseDto.builder()
-            .aiId(ai.getId())
-            .aiName(ai.getName())
-            .gameType(ai.getGameType())
-            .score(ai.getScore())
-            .tier(ai.getTier())
-            .build())
-        .collect(Collectors.toList());
-
+  // ▼ [수정] aiList를 인자로 받도록 변경
+  public static RankingResponseDto toDto(Ranking ranking, Users user, List<RankingAiResponseDto> aiList) {
     return RankingResponseDto.builder()
         .userId(user.getId())
         .username(user.getUsername())
-        .totalScore(ranking.getTotalScore())
         .rank(ranking.getRankOrder())
-        .aiList(aiList)
+        .winRate(ranking.getWinRate())
+        .record(ranking.getWinCount() + "승 " + ranking.getLoseCount() + "패")
+        .aiList(aiList) // 여기에 담아줍니다
         .build();
   }
-
 }

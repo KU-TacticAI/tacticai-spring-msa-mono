@@ -13,13 +13,8 @@ import lombok.NoArgsConstructor;
 public class RankingAiResponseDto {
 
   private Long aiId;
-
   private String aiName;
-
   private String gameType;
-
-  private Long score;
-
+  private Double winRate;
   private Tier tier;
-
 }

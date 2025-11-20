@@ -32,4 +32,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
   boolean existsByEmail(String email);
 
   List<Users> findByIdIn(List<Long> userIds);
+
+  List<Users> findAllByDeletedAtIsNull();
 }

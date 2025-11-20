@@ -20,10 +20,9 @@ public class RankingController {
 
   @GetMapping("/user/ranking")
   public ResponseEntity<List<RankingResponseDto>> getAiRanking(
-      @RequestParam(required = false) Long totalScore,
       Pageable pageable
   ) {
-    List<RankingResponseDto> rankings = rankingService.getRankings(totalScore, pageable);
+    List<RankingResponseDto> rankings = rankingService.getRankings(pageable);
     return ResponseEntity.ok(rankings);
   }
 

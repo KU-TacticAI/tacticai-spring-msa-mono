@@ -25,4 +25,8 @@ public interface AiService {
   List<AiAgent> findByUserIdIn(List<Long> userIdList);
 
   AiResponseDto uploadAiFile(Long aiId, MultipartFile file);
+
+  List<AiAgent> getAiAgentsByUserId(Long id);
+
+  void saveAll(List<AiAgent> updatedAiList);
 }

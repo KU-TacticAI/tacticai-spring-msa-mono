@@ -70,4 +70,8 @@ public class AiAgent extends BaseDeletedAtEntity {
   public void updateAiSize(Long aiSize){
     this.aiSize = aiSize;
   }
+
+  public void updateTier(Tier tier) {
+    this.tier = tier;
+  }
 }

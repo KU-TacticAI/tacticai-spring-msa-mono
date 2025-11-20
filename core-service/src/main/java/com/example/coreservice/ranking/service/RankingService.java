@@ -5,6 +5,6 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface RankingService {
-  List<RankingResponseDto> getRankings(Long totalScore, Pageable pageable);
+  List<RankingResponseDto> getRankings(Pageable pageable);
   void recalculateAllUserRanking();
 }
