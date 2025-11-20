@@ -115,4 +115,14 @@ public class UserServiceImpl implements UserService{
         .ranking(user.getRanking())
         .build();
   }
+
+  @Override
+  public List<Users> findAllUsers() {
+    return userRepository.findAllByDeletedAtIsNull();
+  }
+
+  @Override
+  public void saveAll(List<Users> allUsers) {
+    userRepository.saveAll(allUsers);
+  }
 }

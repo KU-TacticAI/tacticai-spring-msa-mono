@@ -152,4 +152,14 @@ public class AiServiceImpl implements AiService {
     AiAgent saveAiAgent = aiRepository.save(aiAgent);
     return AiResponseDto.toDto(saveAiAgent);
   }
+
+  @Override
+  public List<AiAgent> getAiAgentsByUserId(Long id) {
+    return aiRepository.getAiAgentsByUserId(id);
+  }
+
+  @Override
+  public void saveAll(List<AiAgent> updatedAiList) {
+    aiRepository.saveAll(updatedAiList);
+  }
 }

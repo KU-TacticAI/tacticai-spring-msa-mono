@@ -58,4 +58,9 @@ public class AiStatisticsServiceImpl implements AiStatisticsService{
     aiStatistics.delete();
     aiStatisticsRepository.save(aiStatistics);
   }
+
+  @Override
+  public List<AiStatistics> findByAiIdIn(List<Long> aiIds) {
+    return aiStatisticsRepository.findByAiIdIn(aiIds);
+  }
 }

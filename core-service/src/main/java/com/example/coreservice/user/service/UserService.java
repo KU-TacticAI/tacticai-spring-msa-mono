@@ -22,4 +22,7 @@ public interface UserService {
   Users checkUserPassword(Long userId, String password);
   List<Users> findUsers(List<Long> userIdList);
   PlayerResultDto findWinner(Long userId);
+  List<Users> findAllUsers();
+
+  void saveAll(List<Users> allUsers);
 }

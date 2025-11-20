@@ -1,7 +1,10 @@
 package com.example.coreservice.ranking.entity;
 
 import com.example.commonmodule.base_entity.BaseEntity;
+import com.example.commonmodule.enums.GameType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,15 +26,16 @@ public class Ranking extends BaseEntity {
 
   private Long userId;
 
-//  private String username;
+  // ▼ 기존 totalScore 삭제하고 승률 관련 필드 추가
+  private Double winRate; // 유저의 통합 승률 (%)
 
-  private Long totalScore;
+  private Long totalGameCount; // 유저가 가진 AI들의 총 게임 수
 
-  private Long rankOrder;
+  private Long winCount;  // 유저가 가진 AI들의 총 승리 수
 
-//  @Convert(converter = LongListConverter.class)
-//  @Column(columnDefinition = "TEXT")
-//  private List<Long> aiList;
+  private Long loseCount; // 유저가 가진 AI들의 총 패배 수
+
+  private Long rankOrder; // 순위
 
   public void setRank(Long rank) {
     this.rankOrder = rank;
