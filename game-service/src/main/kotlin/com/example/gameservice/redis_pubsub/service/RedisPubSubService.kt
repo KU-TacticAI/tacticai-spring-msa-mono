@@ -68,9 +68,9 @@ class RedisPubSubService(
             }
 
             messagingTemplate.convertAndSend(topic, jsonNode)
-            println("✅ Message sent to $topic")
+            println("Message sent to $topic")
         } catch (e: Exception) {
-            println("❌ Error sending STOMP message: ${e.message}")
+            println("Error sending STOMP message: ${e.message}")
         }
     }
 
@@ -79,7 +79,7 @@ class RedisPubSubService(
     fun subscribeToRedisChannels() {
         val messageListener = MessageListener { message: Message, _: ByteArray? ->
             val receivedMessage = String(message.body)
-            println("📨 Received from Redis: $receivedMessage")
+            println("Received from Redis: $receivedMessage")
 
             try {
                 val payload = objectMapper.readTree(receivedMessage)
@@ -87,10 +87,10 @@ class RedisPubSubService(
                 if (roomId != null) {
                     broadcastMessage(roomId, receivedMessage)
                 } else {
-                    println("❌ roomId not found in message: $receivedMessage")
+                    println("roomId not found in message: $receivedMessage")
                 }
             } catch (e: Exception) {
-                println("❌ Error parsing Redis message: ${e.message}")
+                println("Error parsing Redis message: ${e.message}")
             }
         }
 
@@ -109,9 +109,9 @@ class RedisPubSubService(
         try {
             val messagePayload = if (message is String) message else objectMapper.writeValueAsString(message)
             redisTemplate.convertAndSend(channel, messagePayload)
-            println("📤 Published to $channel: $messagePayload")
+            println("Published to $channel: $messagePayload")
         } catch (e: Exception) {
-            println("❌ Error publishing to Redis: ${e.message}")
+            println("Error publishing to Redis: ${e.message}")
         }
     }
 }
