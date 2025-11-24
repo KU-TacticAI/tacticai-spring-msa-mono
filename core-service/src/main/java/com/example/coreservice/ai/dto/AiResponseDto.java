@@ -25,8 +25,6 @@ public class AiResponseDto {
 
   private LocalDate uploadDate;
 
-  private String score;
-
   private String tier;
 
   private LocalDate updateAt;
@@ -43,7 +41,6 @@ public class AiResponseDto {
         .aiUrl(aiAgent.getAiUrl())
         .aiSize(aiAgent.getAiSize())
         .updateAt(aiAgent.getCreatedAt().toLocalDate())
-        .score(aiAgent.getScore().toString())
         .tier(aiAgent.getTier().toString())
         .uploadDate(aiAgent.getUpdatedAt().toLocalDate())
         .version(aiAgent.getVersion())
